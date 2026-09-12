@@ -1,6 +1,6 @@
 {
-  "version": "2.1.0",
-  "notes": "Medya Kütüphanesi eklendi: telifsiz müzik ekleme, YouTube Audio Library/Pixabay erişimi, emoji-sticker kütüphanesi ve overlay seçimi.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_1_PATCH.zip",
-  "sha256": "e5a131da1b4df213897426498b029152619c858f9d31e3bf45721f9c4e208b97"
+  "version": "2.1.2",
+  "notes": "V2.1.2: Telifsiz müzik kütüphanesi + emoji/sticker sistemi + sessiz açılış + GitHub otomatik güncelleme + UTF-8 BOM düzeltmeleri tek sürümde birleştirildi.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_1_2_Update.zip",
+  "sha256": "0226baa1ba30d4735bae4b99e290d11ef65576070e444a0946a35603164c98dc"
 }
