@@ -1,6 +1,6 @@
 {
-  "version": "2.1.2",
-  "notes": "V2.1.2: Telifsiz müzik kütüphanesi + emoji/sticker sistemi + sessiz açılış + GitHub otomatik güncelleme + UTF-8 BOM düzeltmeleri tek sürümde birleştirildi.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_1_2_Update.zip",
-  "sha256": "0226baa1ba30d4735bae4b99e290d11ef65576070e444a0946a35603164c98dc"
+  "version": "2.2.0",
+  "notes": "V2.2.0: Video önizleme ve butonlar düzeltildi. Oynat/duraklat/durdur, 5 saniye ileri-geri, timeline üzerinden seek, üst menü tuşları ve medya sekmeleri işlevsel hale getirildi.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_0_Playback_FIX_MIN.zip",
+  "sha256": "b46d5cab0abb738a5263defed3a75071ba672e922e4298225c6832ca0628ae99"
 }
