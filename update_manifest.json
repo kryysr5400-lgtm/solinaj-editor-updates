@@ -1,6 +1,6 @@
 {
-  "version": "2.2.0",
-  "notes": "V2.2.0: Video önizleme ve butonlar düzeltildi. Oynat/duraklat/durdur, 5 saniye ileri-geri, timeline üzerinden seek, üst menü tuşları ve medya sekmeleri işlevsel hale getirildi.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_0_Playback_FIX_MIN.zip",
-  "sha256": "b46d5cab0abb738a5263defed3a75071ba672e922e4298225c6832ca0628ae99"
+  "version": "2.2.1",
+  "notes": "V2.2.1: Video oynatma/buton düzeltmeleri korunur. Güncelleme doğrulaması güçlendirildi; önbellek aşma, eski geçici ZIP'i silme ve 3 kez yeniden indirme eklendi.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_1_Playback_Updater_FIX.zip",
+  "sha256": "1f9826136317aa5c8cfed05444ef1e70fa453e61a3970bf3284d1f9eda37f25a"
 }
