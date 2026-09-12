@@ -1,6 +1,6 @@
 {
   "version": "15.1",
-  "script_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/solinaj_arsivleyici.py",
-  "script_sha256": "230b73a6541025e27f1d965f2c006deae59447551ea366ab27feaeba6f54f199",
-  "notes": "İnternet güncelleme sistemi aktif. Bu sürüm, GÜNCELLE düğmesinin GitHub üzerinden doğrudan güncelleme almasını doğrulayan ilk çevrim içi sürümdür."
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_1_patch.py",
+  "patch_sha256": "2f549daf4f4e245e5d17d35712d699088eba3b51d4fe9ef479df1f927f0470f4",
+  "notes": "İnternet güncelleme sistemi aktif. Bu ilk çevrim içi güncelleme, GÜNCELLE düğmesinin GitHub üzerinden güncelleme alabildiğini doğrular."
 }
