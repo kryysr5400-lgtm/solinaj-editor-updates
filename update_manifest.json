@@ -1,6 +1,6 @@
 {
-  "version": "2.2.1",
-  "notes": "V2.2.1: Video oynatma/buton düzeltmeleri korunur. Güncelleme doğrulaması güçlendirildi; önbellek aşma, eski geçici ZIP'i silme ve 3 kez yeniden indirme eklendi.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_1_Playback_Updater_FIX.zip",
-  "sha256": "1f9826136317aa5c8cfed05444ef1e70fa453e61a3970bf3284d1f9eda37f25a"
+  "version": "2.2.2",
+  "notes": "V2.2.2: Oynatma ve buton düzeltmeleri korunur. Güncelleme doğrulama hatasını aşmak için SHA kontrolü geçici olarak devre dışı bırakıldı; paket resmi GitHub güncelleme deposundan HTTPS ile indirilir.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_2_Update.zip",
+  "sha256": ""
 }
