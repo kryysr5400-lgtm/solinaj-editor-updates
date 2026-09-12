@@ -1,6 +1,6 @@
 {
-  "version": "15.1",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_1_patch.py",
-  "patch_sha256": "2f549daf4f4e245e5d17d35712d699088eba3b51d4fe9ef479df1f927f0470f4",
-  "notes": "İnternet güncelleme sistemi aktif. Bu ilk çevrim içi güncelleme, GÜNCELLE düğmesinin GitHub üzerinden güncelleme alabildiğini doğrular."
+  "version": "15.3",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_3_patch.py",
+  "patch_sha256": "4147bc428839a7c8f7a453e348274765397f94875b89a1a759518645380000bc",
+  "notes": "Ana ekrandaki tekrar eden GÜNCELLE düğmesi kaldırıldı. Güncelleme artık yalnızca sol taraftaki Güncelleme menüsünden yapılır."
 }
