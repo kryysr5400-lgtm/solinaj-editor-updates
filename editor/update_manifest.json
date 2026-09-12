@@ -1,6 +1,6 @@
 {
-  "version": "2.2.2",
-  "notes": "Solinaj Editor ayrı güncelleme kanalı. Bu kanal yalnızca Solinaj Editor içindir.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_2_Update.zip",
+  "version": "2.2.1",
+  "notes": "V2.2.2 paketi bozuk olduğu için geçici olarak geri çekildi. Güvenli güncelleme kanalı V2.2.1 sürümüne sabitlendi.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_1_Playback_Updater_FIX.zip",
   "sha256": ""
 }
