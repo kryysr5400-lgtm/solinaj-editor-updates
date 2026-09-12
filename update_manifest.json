@@ -1,6 +1,6 @@
 {
-  "version": "2.0.1",
-  "notes": "Solinaj Editor otomatik internet güncelleme sistemi aktif.",
-  "package_url": "",
-  "sha256": ""
+  "version": "2.1.0",
+  "notes": "Medya Kütüphanesi eklendi: telifsiz müzik ekleme, YouTube Audio Library/Pixabay erişimi, emoji-sticker kütüphanesi ve overlay seçimi.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_1_PATCH.zip",
+  "sha256": "e5a131da1b4df213897426498b029152619c858f9d31e3bf45721f9c4e208b97"
 }
