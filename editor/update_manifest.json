@@ -1,6 +1,6 @@
 {
-  "version": "2.4.0",
-  "notes": "SOLINAJ EDITOR V2.4.0: CapCut-benzeri koyu arayüz, Medya ve Ses/Müzik alanları, büyük Player, sağ ayar paneli ve Timeline görünümü. Mevcut FFmpeg, oynatma, export ve müzik altyapısı korunur.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/Solinaj_Editor_V2_4_0_CAPCUT_ARAYUZ_UPDATE.zip",
+  "version": "2.4.1",
+  "notes": "SOLINAJ EDITOR V2.4.1: Güncelleme sonrası uygulamanın kapanıp yeniden açılmaması düzeltildi. Güncelleyici mevcut Python yürütücüsüyle yeniden başlatır, günlük tutar ve hata halinde geri alma dener.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/Solinaj_Editor_V2_4_1_GUNCELLEME_FIX%20(1).zip",
   "sha256": ""
 }
