@@ -1,6 +1,6 @@
 {
-  "version": "2.2.1",
-  "notes": "V2.2.2 paketi bozuk olduğu için geçici olarak geri çekildi. Güvenli güncelleme kanalı V2.2.1 sürümüne sabitlendi.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/releases/Solinaj_Editor_V2_2_1_Playback_Updater_FIX.zip",
+  "version": "2.4.0",
+  "notes": "SOLINAJ EDITOR V2.4.0: CapCut-benzeri koyu arayüz, Medya ve Ses/Müzik alanları, büyük Player, sağ ayar paneli ve Timeline görünümü. Mevcut FFmpeg, oynatma, export ve müzik altyapısı korunur.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/Solinaj_Editor_V2_4_0_CAPCUT_ARAYUZ_UPDATE.zip",
   "sha256": ""
 }
