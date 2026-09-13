@@ -594,72 +594,53 @@ class ShortsMaker(tk.Tk):
         messagebox.showinfo('ChatGPT paketi hazır',f'Paket oluşturuldu:\n{f}\n\nBeğendiğin MP4 shortları bu sohbete yükleyebilirsin.')
 
     def _version_tuple(self,v):
-        nums=re.findall(r'\d+',str(v))
-        return tuple(int(x) for x in (nums+['0','0','0'])[:3])
-
-    def _read_update_config(self):
-        cfg=Path(__file__).resolve().parent/'update_config.json'
-        if not cfg.exists():return None
-        try:return json.loads(cfg.read_text(encoding='utf-8-sig'))
-        except:return None
+        try:return tuple(int(x) for x in str(v).split('.'))
+        except:return (0,)
 
     def check_update(self):
-        if self.busy:
-            messagebox.showinfo('İşlem sürüyor','Short oluşturma bitince güncelleme yap.'); return
-        cfg=self._read_update_config()
-        if not cfg or not cfg.get('manifest_url'):
-            messagebox.showinfo('Güncelleme','Güncelleme kanalı mevcut kurulumda tanımlı değil.'); return
-        self.update_btn.config(state='disabled',text='Kontrol...')
-        threading.Thread(target=self._update_worker,args=(cfg,),daemon=True).start()
-
-    def _update_worker(self,cfg):
+        if self.busy:return
+        cfg=Path(__file__).resolve().parent/'update_config.json'
+        if not cfg.exists():
+            messagebox.showinfo('Güncelleme','update_config.json bulunamadı.'); return
         try:
-            req=urllib.request.Request(cfg['manifest_url'],headers={'User-Agent':'SolinajEditor'})
-            with urllib.request.urlopen(req,timeout=15) as r:
-                data=json.loads(r.read().decode('utf-8-sig'))
-            remote=str(data.get('version','0'))
-            if self._version_tuple(remote)<=self._version_tuple(APP_VERSION):
-                self.after(0,lambda:messagebox.showinfo('Güncelleme',f'Program güncel.\nV{APP_VERSION}'))
-                return
-            files=data.get('files') or []
-            if not files:raise RuntimeError('Manifest içinde files listesi yok.')
-            ans=messagebox.askyesno('Güncelleme bulundu',f"Yeni sürüm V{remote} bulundu.\n\n{data.get('notes','')}\n\nŞimdi indirip kurulsun mu?")
-            if not ans:return
-            root=Path(__file__).resolve().parent
-            stage=Path(tempfile.gettempdir())/f'SolinajEditor_Update_{remote}_{int(time.time())}'
-            stage.mkdir(parents=True,exist_ok=True)
-            entries=[]
-            for i,item in enumerate(files,1):
-                rel=str(item.get('path','')).replace('\\','/').lstrip('/')
-                url=item.get('url'); sha=(item.get('sha256') or '').lower()
-                if not rel or not url:raise RuntimeError('Manifest dosya kaydı eksik.')
-                dst=stage/rel; dst.parent.mkdir(parents=True,exist_ok=True)
-                self._ui_status(f'Güncelleme indiriliyor {i}/{len(files)} • {rel}',min(90,i/len(files)*90))
-                req=urllib.request.Request(url,headers={'User-Agent':'SolinajEditor'})
-                with urllib.request.urlopen(req,timeout=60) as r:blob=r.read()
-                if sha and hashlib.sha256(blob).hexdigest().lower()!=sha:raise RuntimeError(f'SHA256 uyuşmadı: {rel}')
-                dst.write_bytes(blob); entries.append({'path':rel,'source':str(dst)})
-            plan={'version':remote,'install_dir':str(root),'files':entries,'launcher':str(root/'SolinajEditor_Launcher.vbs')}
-            plan_path=stage/'update_plan.json'; plan_path.write_text(json.dumps(plan,ensure_ascii=False,indent=2),encoding='utf-8')
-            helper=root/'AUTO_UPDATE_FILES_APPLY.ps1'
-            if not helper.exists():raise RuntimeError('AUTO_UPDATE_FILES_APPLY.ps1 bulunamadı.')
-            subprocess.Popen(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(helper),'-Plan',str(plan_path)],creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
-            self.after(0,self.destroy)
+            data=json.loads(cfg.read_text(encoding='utf-8-sig')); url=data.get('manifest_url')
         except Exception as e:
-            self.after(0,lambda:messagebox.showerror('Güncelleme hatası',str(e)))
+            messagebox.showerror('Güncelleme',str(e)); return
+        if not url:
+            messagebox.showinfo('Güncelleme','Manifest adresi tanımlı değil.'); return
+        self.update_btn.config(state='disabled',text='Kontrol...')
+        threading.Thread(target=self._update_worker,args=(url,),daemon=True).start()
+
+    def _update_worker(self,url):
+        try:
+            req=urllib.request.Request(url,headers={'User-Agent':'SolinajShortsMakerUpdater','Cache-Control':'no-cache'})
+            with urllib.request.urlopen(req,timeout=20) as r:
+                manifest=json.loads(r.read().decode('utf-8-sig'))
+            remote=str(manifest.get('version','0.0.0'))
+            if self._version_tuple(remote)<=self._version_tuple(APP_VERSION):
+                self.after(0,lambda:messagebox.showinfo('Güncelleme',f'Program güncel. V{APP_VERSION}'))
+                return
+            if not messagebox.askyesno('Güncelleme',f'Yeni sürüm bulundu: V{remote}\n\n{manifest.get("notes","")}\n\nŞimdi güncellensin mi?'):
+                return
+            root=Path(__file__).resolve().parent
+            stage=Path(tempfile.mkdtemp(prefix='SolinajShortsUpdate_'))
+            files=manifest.get('files',[])
+            for i,item in enumerate(files,1):
+                rel=item.get('path'); furl=item.get('url')
+                if not rel or not furl:continue
+                if '..' in Path(rel).parts:raise RuntimeError('Geçersiz güncelleme dosyası.')
+                target=stage/rel; target.parent.mkdir(parents=True,exist_ok=True)
+                req=urllib.request.Request(furl,headers={'User-Agent':'SolinajShortsMakerUpdater','Cache-Control':'no-cache'})
+                with urllib.request.urlopen(req,timeout=120) as r,open(target,'wb') as f:shutil.copyfileobj(r,f)
+                exp=str(item.get('sha256','')).lower().strip()
+                if exp and hashlib.sha256(target.read_bytes()).hexdigest()!=exp:raise RuntimeError(f'{rel} doğrulanamadı.')
+            updater=root/'AUTO_UPDATE_FILES_APPLY.ps1'
+            self._popen_light(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(updater),'-StageDir',str(stage),'-InstallDir',str(root),'-Launcher',str(root/'SolinajEditor_Launcher.vbs'),'-PythonExe',sys.executable,'-TargetVersion',remote],creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+            self.after(800,self.destroy)
+        except Exception as e:
+            self.after(0,lambda m=str(e):messagebox.showerror('Güncelleme Hatası',m))
         finally:
             self.after(0,lambda:self.update_btn.config(state='normal',text='↻ Güncelle'))
-
-    def _clean_exit(self):
-        try:
-            p=self.active_process
-            if p and p.poll() is None:
-                p.terminate()
-                try:p.wait(timeout=1.5)
-                except Exception:p.kill()
-        except Exception:pass
-        self.destroy()
-
 
 if __name__=='__main__':
     ShortsMaker().mainloop()
