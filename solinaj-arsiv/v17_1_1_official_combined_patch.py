@@ -46,26 +46,53 @@ def _v171_install_scan_counters(self):
     try:
         work=self.progress.master
         dash=work.master
-        scan_counts=tk.Frame(dash,bg="#091522",highlightbackground="#1e435d",highlightthickness=1)
+
+        scan_counts=tk.Frame(
+            dash,bg="#091522",
+            highlightbackground="#1e435d",
+            highlightthickness=1
+        )
         self.scan_counts_frame=scan_counts
+
         try:
             scan_counts.pack(fill="x",padx=24,pady=(0,10),after=work)
         except Exception:
             scan_counts.pack(fill="x",padx=24,pady=(0,10))
+
         self.scan_total_var=tk.StringVar(value="0")
         self.scan_scanned_var=tk.StringVar(value="0")
         self.scan_processed_var=tk.StringVar(value="0")
-        defs=[("TARANACAK DOSYA",self.scan_total_var),("TARANAN DOSYA",self.scan_scanned_var),("İŞLEM GÖREN",self.scan_processed_var)]
+
+        defs=[
+            ("TARANACAK DOSYA",self.scan_total_var),
+            ("TARANAN DOSYA",self.scan_scanned_var),
+            ("İŞLEM GÖREN",self.scan_processed_var),
+        ]
+
         for i,(title,var) in enumerate(defs):
-            box=tk.Frame(scan_counts,bg="#0d1b29",highlightbackground="#1e435d",highlightthickness=1)
+            box=tk.Frame(
+                scan_counts,bg="#0d1b29",
+                highlightbackground="#1e435d",
+                highlightthickness=1
+            )
             box.grid(row=0,column=i,sticky="nsew",padx=(0 if i==0 else 5,0),pady=0)
             scan_counts.columnconfigure(i,weight=1)
-            tk.Label(box,text=title,bg="#0d1b29",fg="#7894a8",font=("Segoe UI",8,"bold")).pack(anchor="w",padx=10,pady=(7,0))
-            tk.Label(box,textvariable=var,bg="#0d1b29",fg="#ffffff",font=("Segoe UI",15,"bold")).pack(anchor="w",padx=10,pady=(0,7))
+
+            tk.Label(
+                box,text=title,bg="#0d1b29",fg="#7894a8",
+                font=("Segoe UI",8,"bold")
+            ).pack(anchor="w",padx=10,pady=(7,0))
+
+            tk.Label(
+                box,textvariable=var,bg="#0d1b29",fg="#ffffff",
+                font=("Segoe UI",15,"bold")
+            ).pack(anchor="w",padx=10,pady=(0,7))
+
         try:
             scan_counts.lift()
         except Exception:
             pass
+
     except Exception as e:
         try:
             self.add_log_ui("V17.1.1 sabit sayaç paneli kurulamadı: "+str(e))
@@ -86,6 +113,7 @@ def _v171_set_scan_counters(self,total=None,scanned=None,processed=None,games=No
                     frame.lift()
                 except Exception:
                     pass
+
             if total is not None and hasattr(self,"scan_total_var"):
                 self.scan_total_var.set(str(total))
             if scanned is not None and hasattr(self,"scan_scanned_var"):
@@ -101,7 +129,16 @@ def _v171_set_scan_counters(self,total=None,scanned=None,processed=None,games=No
     self.after(0,_apply)
 """)
 
-    source_text=re.sub(r'APP_NAME\s*=\s*"Solinaj Ar[sş]ivleyici V[^"]+"','APP_NAME = "Solinaj Arşivleyici V17.1.1"',source_text,count=1)
-    source_text=re.sub(r'APP_VERSION\s*=\s*"[^"]+"','APP_VERSION = "17.1.1"',source_text,count=1)
+    source_text=re.sub(
+        r'APP_NAME\s*=\s*"Solinaj Ar[sş]ivleyici V[^"]+"',
+        'APP_NAME = "Solinaj Arşivleyici V17.1.1"',
+        source_text,count=1
+    )
+    source_text=re.sub(
+        r'APP_VERSION\s*=\s*"[^"]+"',
+        'APP_VERSION = "17.1.1"',
+        source_text,count=1
+    )
+
     compile(source_text,"<solinaj_v17_1_1>","exec")
     return source_text
