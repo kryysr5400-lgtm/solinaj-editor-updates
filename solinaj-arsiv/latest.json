@@ -1,6 +1,6 @@
 {
-  "version": "15.8",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_8_pause_resume_patch.py",
-  "patch_sha256": "4963d418cba5bc133db9f4a40295fc3c257fa01aad65f97b1c1a752ca663ea92",
-  "notes": "V15.8: DURDUR artik iptal etmez, islemi duraklatir. Ortadaki Windows tarzi hareketli bar durur. TARA yeniden basildiginda ayni islem kaldigi yerden devam eder; yarim kopyalanan dosya korunur ve kalan kisimdan devam edilir. V15.7 dosya siniflandirma ve tekrar kopyalamama sistemi korunur."
+  "version": "15.9",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_9_pause_resume_windowsbar_patch.py",
+  "patch_sha256": "a65fc09af17127d67881a83f435570eaae684a187102d14a4ddc3a02268017f9",
+  "notes": "V15.9: DURDUR gerçek duraklatma yapar; tarama ve aktif dosya kopyalama konumu korunur. TARA yeni tarama başlatmadan aynı thread'i kaldığı yerden devam ettirir. Ortadaki ilerleme çubuğu Windows tarzı hareketli göstergedir; DURDUR'a basınca tam bulunduğu konumda donar ve TARA ile aynı konumdan hareket etmeye devam eder. Yarım dosya silinmez, kalan byte'lardan devam edilir."
 }
