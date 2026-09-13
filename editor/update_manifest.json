@@ -1,6 +1,6 @@
 {
-  "version": "2.4.2",
-  "notes": "SOLINAJ EDITOR V2.4.2 TEST: Güncelle > indir > kapan > kur > otomatik yeniden aç akışını doğrulamak için test sürümü. V2.4.1 yeniden başlatma düzeltmesi korunur.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/Solinaj_Editor_V2_4_2_TEST_UPDATE.zip",
+  "version": "2.4.3",
+  "notes": "SOLINAJ EDITOR V2.4.3: Güncelleme Merkezi eklendi. Sürüm kontrolü, indirme yüzdesi, tekrar deneme, kurulum durumu ve yeniden açılış sonrası 'Güncelleme Tamamlandı' bildirimi gösterilir.",
+  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/Solinaj_Editor_V2_4_3_GUNCELLEME_BILDIRIM.zip",
   "sha256": ""
 }
