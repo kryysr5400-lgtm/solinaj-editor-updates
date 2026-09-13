@@ -1,6 +1,6 @@
 {
   "version": "15.6",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_6_patch.py",
-  "patch_sha256": "fae02acf0903d6065c9d083d6dd89acece90649eda9fe0ef4a0f8269de8a7c6b",
-  "notes": "V15.6 uyumluluk düzeltmesi: Gerçek V15.5 kurulumuna göre TARAMAYI BAŞLAT yeniden bağlandı; artık güncelleyici yerine gerçek taramayı başlatır. Tarama sırasında Windows tarzı hareketli ilerleme çubuğu, kopyalamada gerçek yüzde ve çalışan DURDUR işlevi eklendi. Yarım kopya durdurmada temizlenir."
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_6_compat_patch.py",
+  "patch_sha256": "eee4e872b2fa38f61e4c25f406c0b81226676ca788f7fed7bda021164dec6335",
+  "notes": "V15.6 uyumluluk düzeltmesi: Gerçek V15.5 kurulumuna göre TARAMAYI BAŞLAT yeniden bağlandı; tarama çubuğu Windows tarzı hareketli çalışır, dosya kopyalamada gerçek ilerleme gösterir ve DURDUR aktif işlemi güvenli biçimde keser."
 }
