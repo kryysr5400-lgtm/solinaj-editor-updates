@@ -1,6 +1,6 @@
 {
-  "version": "15.4",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_4_patch.py",
-  "patch_sha256": "0f28fc2970955d2e0175df51ba435aa70e7596bc47d0b360dab6665662b3b297",
-  "notes": "Dosya türü sınırlaması kaldırıldı. Eski oyun videosu, Shorts, oyun resmi ve aile resmi sistemi korunur; diğer dosyalar da otomatik tanınarak Belgeler, Sesler, Arsivler, Programlar, Projeler, Veriler, Tasarim, Fontlar ve Diger Dosyalar klasörlerine ayrılır. Aynı dosyalar yeniden kopyalanmaz."
+  "version": "15.5",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_5_final_patch.py",
+  "patch_sha256": "647f47d3b96d65f400e8211b33fd3e82d799f6262f032342e239b989ef91793c",
+  "notes": "DURDUR düğmesi güçlendirildi; aktif kopyalama güvenli şekilde kesilir ve yarım dosya temizlenir. Tarama sırasında Windows tarzı hareketli ilerleme çubuğu, dosya işlenirken gerçek yüzde göstergesi kullanılır. V15.4 dosya sınıflandırma ve tekrar kopyalamama sistemi korunur. Güvenli güncelleme mekanizmasına dokunulmadı."
 }
