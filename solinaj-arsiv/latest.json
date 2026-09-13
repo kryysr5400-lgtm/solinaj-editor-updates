@@ -1,6 +1,6 @@
 {
-  "version": "16.8",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_8_update_threadsafe_patch.py",
-  "patch_sha256": "5a60158d64f0504db619a1dcfa357b93ac9e3e025c388d0fe85b9270039dfd51",
-  "notes": "V16.8: Güncelle düğmesindeki takılma thread/Tkinter seviyesinde düzeltildi. Worker thread artık Tkinter çağrısı yapmaz; manifest ve indirme sonuçları ana arayüz thread'i tarafından poll edilir. Güncelleme kontrolüne zaman aşımı eklendi ve program güncelse modal bilgi penceresi açılmadan durum satırı güncellenir."
+  "version": "16.9",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_9_update_network_fix_patch.py",
+  "patch_sha256": "573d15a75422e55a389abbe0e58fa1c75f72285f657dbbac4fc429e4330f8854",
+  "notes": "V16.9: V16.8'de görülen güncelleme kontrolü başarısız bağlantı hatası için çift bağlantı yöntemi eklendi. Önce Python urllib kullanılır; başarısız olursa Windows PowerShell/.NET WebClient TLS 1.2 ile otomatik yedek bağlantı kurar. V16.8'in thread güvenli güncelleme akışı korunur."
 }
