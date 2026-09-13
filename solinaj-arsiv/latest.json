@@ -1,6 +1,6 @@
 {
-  "version": "16.6",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_6_sol_heartbeat_patch.py",
-  "patch_sha256": "b14e11a7fd07c016621be37fadd5f159b46fbb95649af3f898508171f416d7f0",
-  "notes": "V16.6: Sol menüye canlı sistem grafiği eklendi. İşlem yokken yeşil düz çizgi gösterir; tarama, kopyalama veya arşivleme başladığında kırmızı EKG/kalp ritmi animasyonuna dönüşür. Eski büyük Canlı İşlem Merkezi gizlenir, üst arşivleme ilerleme paneli korunur. Güncelleme kurulmadan önce mevcut sürüm güvenli şekilde yedeklenir."
+  "version": "16.7",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_7_update_button_fix_patch.py",
+  "patch_sha256": "25a1ab71c8fbeb59dad5745d5c4dc779cd68294e079ee5e92145ad7f7b665e09",
+  "notes": "V16.7: Güncelleme düğmesine basınca yaşanan takılma düzeltildi. Eski harici güncelleyici çağrısı yerine uygulamanın dahili güvenli güncelleme sistemi kullanılır ve sunucu kontrolü arka planda çalışır. V16.6 heartbeat arayüzü korunur."
 }
