@@ -34,6 +34,7 @@ def _rename_effective_method(source_text, old_name, new_name):
 def _append_app_methods(source_text, method_block):
     tree = ast.parse(source_text)
     app = _find_app(tree)
+    # Sinifin son metodundan hemen sonra ekle. App sinifinin disina cikmaz.
     insert_line = app.end_lineno
     lines = source_text.splitlines(keepends=True)
     indent = " " * 4
@@ -52,6 +53,7 @@ def apply_update(source_text):
     if current not in {"15.8", "15.9", "16.0"}:
         raise RuntimeError(f"Bu guncelleme V15.8/V15.9/V16.0 icindir. Mevcut: {current}")
 
+    # Mevcut calisan TARA/DURDUR mantigini aynen koru; sadece sarmala.
     source_text = _rename_effective_method(source_text, "start_scan", "_v161_core_start_scan")
     source_text = _rename_effective_method(source_text, "stop_scan", "_v161_core_stop_scan")
 
@@ -95,6 +97,7 @@ def _transfer_panel_ensure(self):
     except Exception:
         pass
 
+    # Eski ortadaki tek progress bar artik gorunmez.
     try:
         self.progress.stop()
     except Exception:
@@ -275,6 +278,7 @@ def _transfer_draw_progress(self, ratio):
         fill_w = int(w * ratio)
         if fill_w > 0:
             c.create_rectangle(0, 0, fill_w, h, fill="#06b025", outline="")
+            # Windows kopyalama penceresini andiran ince parlak ust cizgi.
             c.create_rectangle(0, 0, fill_w, 3, fill="#69db78", outline="")
     except Exception:
         pass
@@ -291,6 +295,7 @@ def _transfer_panel_refresh(self):
             ratio = max(0.0, min(1.0, done / total))
             pct = int(ratio * 100)
         else:
+            # Dosya kopyasi başlamadan once ekran bos kalmasin.
             ratio = 0.0
             pct = 0
 
@@ -330,5 +335,7 @@ def _transfer_panel_refresh(self):
 '''
 
     source_text = _append_app_methods(source_text, methods)
+
+    # Yeni ekran kullanilir; eski orta progress bar kaynakta kalsa bile ilk TARA'da gizlenir.
     compile(source_text, "<solinaj_arsivleyici_v16_1>", "exec")
     return source_text
