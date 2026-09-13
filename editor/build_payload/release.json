@@ -1,0 +1,8 @@
+{
+  "version": "2.5.0",
+  "base_package": "editor/Solinaj_Editor_V2_4_4_KOYU_GUNCELLEME_MERKEZI.zip",
+  "output_name": "Solinaj_Editor_V2_5_0_PRO_ARAYUZ_UPDATE.zip",
+  "notes": "SOLINAJ EDITOR V2.5.0: Profesyonel arayüz güncellemesi. Üst bar, Medya paneli, Önizleme, Özellikler paneli, Timeline ve durum çubuğu yenilendi. V2.4.4 çalışan güncelleme/FFmpeg/oynatma/export/müzik altyapısı korunur.",
+  "notes_file": "V2_5_0_PRO_ARAYUZ_NOTLARI.txt",
+  "trigger_id": 1
+}
