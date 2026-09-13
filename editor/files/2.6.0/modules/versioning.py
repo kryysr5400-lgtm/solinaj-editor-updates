@@ -18,7 +18,7 @@ def check_local_manifest():
         return {"status":"none"}
     try:
         data=json.loads(manifest.read_text(encoding="utf-8"))
-        remote=str(data.get("version",APP_VERSION))
+        remote=str(data.get("version", APP_VERSION))
         if _version_tuple(remote)>_version_tuple(APP_VERSION):
             return {"status":"new","version":remote,"notes":data.get("notes","")}
         return {"status":"current","version":APP_VERSION}
