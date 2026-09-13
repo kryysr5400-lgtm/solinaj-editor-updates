@@ -1,6 +1,6 @@
 {
-  "version": "17.0.1",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v17_0_1_official_heartbeat_patch.py",
-  "patch_sha256": "42e030785333c260b11b8b7c62df3a05288b83be79a49505c7432a4e70c8aacb",
-  "notes": "V17.0.1: Sol menüye canlı Sistem Durumu heartbeat grafiği eklendi. Beklemede yeşil düz çizgi, tarama/kopyalama/arşivleme sırasında kırmızı EKG görünür; işlem tamamlandığında veya DUR komutu verildiğinde yeşile döner. Eski büyük Canlı İşlem Merkezi gizlenir, üst arşivleme/ilerleme alanı korunur. DUR işlevi gerçek tarama akışında test edilmiştir."
+  "version": "17.1.1",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v17_1_1_official_combined_patch.py",
+  "patch_sha256": "924da160ac51a613258533e65ca20b6aca18fbb1ae974e245fb01e801ec41309",
+  "notes": "V17.1.1: Oyunlar sayacı düzeltildi; Taranacak Dosya, Taranan Dosya ve İşlem Gören sayaçları eklendi. Daha önce başarıyla işlenmiş dosyalar tekrar tarama toplamına eklenmez. Tarama sırasında sayaç panelinin kaybolması düzeltildi. Sol menü heartbeat ve DUR davranışı korunur."
 }
