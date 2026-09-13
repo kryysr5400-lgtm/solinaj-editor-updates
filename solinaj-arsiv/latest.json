@@ -1,6 +1,6 @@
 {
-  "version": "16.2",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_2_windows_transfer_panel_patch.py",
-  "patch_sha256": "f81ab06f28800a782d539fc8a70901eeb0dda6a8e986d7ed0cbf60e18d9b8141",
-  "notes": "V16.2 uyumluluk düzeltmesi: Mevcut V16.1 yapısında satır adı aramak yerine gerçek panel metodları güvenli biçimde değiştirilir. Eski 'Arşivleme Devam Ediyor' alanı tarama başladığında Windows tarzı canlı işlem paneline dönüşür; aktif dosya, kaynak, hedef, yüzde, hız, dosya sayısı ve tahmini kalan süre gösterilir. Mevcut tarama/kopyalama mantığı korunur."
+  "version": "16.3",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_3_force_ui_panel_patch.py",
+  "patch_sha256": "b90d875850be74c572833ecb0b95b70c2d8774ea7c34e00681f6448a58308f50",
+  "notes": "V16.3: Önceki sürümde görünüm değişmediği için arayüz güncellemesi zorunlu hale getirildi. Program açılırken mevcut 'Arşivleme Devam Ediyor' alanı doğrudan Windows tarzı canlı arşivleme paneliyle değiştirilir. Dosya adı, kaynak, hedef, yüzde, dosya sayısı, hız ve kalan süre gösterilir. Mevcut tarama ve arşivleme mantığı korunur."
 }
