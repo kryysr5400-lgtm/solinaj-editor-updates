@@ -1,6 +1,6 @@
 {
-  "version": "16.3",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_3_final_wrapper.py",
-  "patch_sha256": "7fe88bda0f71dcb402be5fd5dee50bdc2515ad0e17e8e5b4354cf5d92d32c350",
-  "notes": "V16.3 final: Windows tarzı canlı arşivleme paneli uygulanır. Ayrıca eski harici güncelleyici bağımlılığı kaldırılır; bundan sonraki sürümler programın kendi no-cache güncelleme sistemiyle doğrudan GitHub manifestinden kontrol edilir."
+  "version": "16.4",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_4_direct_ui_fix_patch.py",
+  "patch_sha256": "75246f57768bf7e9adf8a2082447231b9937d6cf3ea232c3a1b5409240d500dc",
+  "notes": "V16.4: V16.3'te sürüm yükselmesine rağmen görünmeyen arayüz değişikliği düzeltildi. 'Arşivleme Devam Ediyor' alanı artık kaynak kod seviyesinde doğrudan Windows tarzı canlı işlem paneline dönüştürülür. Panel dosya adı, kaynak, hedef, yüzde, dosya sayısı, hız ve tahmini kalan süreyi gösterir. V16.3'teki geçici runtime panel kurulum yöntemi devre dışı bırakıldı."
 }
