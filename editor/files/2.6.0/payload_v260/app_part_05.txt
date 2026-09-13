@@ -1,0 +1,257 @@
+y, textvariable=self.update_badge_var,
+                                     bg="#111318", fg="#67d391",
+                                     font=("Segoe UI", 10, "bold"))
+        self.update_badge.pack(anchor="w", pady=(12, 0))
+
+        tk.Label(body,
+                 text="Güncelleme varsa program indirir, kurar ve otomatik yeniden açılır.",
+                 bg="#111318", fg="#707887", font=("Segoe UI", 8)).pack(anchor="w", pady=(8, 0))
+
+        def redraw_bar(event=None):
+            try:
+                width = max(1, self.update_bar_canvas.winfo_width())
+                value = float(self.update_progress.get())
+                self.update_bar_canvas.coords(
+                    self.update_bar_fill, 0, 0, width * max(0, min(100, value)) / 100.0, 14)
+            except Exception:
+                pass
+        self._redraw_update_bar = redraw_bar
+        self.update_bar_canvas.bind("<Configure>", redraw_bar)
+        self.after(50, redraw_bar)
+
+    def _set_update_ui(self, info=None, percent=None, value=None, title=None, badge=None):
+        try:
+            if info is not None and hasattr(self, "update_info_var"):
+                self.update_info_var.set(info)
+            if percent is not None and hasattr(self, "update_percent_var"):
+                self.update_percent_var.set(percent)
+            if value is not None and hasattr(self, "update_progress"):
+                self.update_progress.set(max(0, min(100, value)))
+            if title is not None and hasattr(self, "update_title_var"):
+                self.update_title_var.set(title)
+            if badge is not None and hasattr(self, "update_badge_var"):
+                self.update_badge_var.set(badge)
+            if hasattr(self, "_redraw_update_bar"):
+                self.after_idle(self._redraw_update_bar)
+        except Exception:
+            pass
+
+    def check_update(self):
+        if getattr(self, "_update_in_progress", False):
+            try:
+                self._update_win.lift()
+            except Exception:
+                pass
+            return
+        self._update_in_progress = True
+        try:
+            self.update_button.config(state="disabled", text="↻  Kontrol...")
+        except Exception:
+            pass
+        self._open_update_window()
+        self._set_update_ui("İnternetten yeni sürüm kontrol ediliyor...", "Kontrol ediliyor...", 5, title="Güncelleme kontrol ediliyor", badge="")
+        threading.Thread(target=self._update_worker, daemon=True).start()
+
+    def _finish_update_check(self):
+        self._update_in_progress = False
+        try:
+            self.update_button.config(state="normal", text="↻  Güncelle")
+        except Exception:
+            pass
+
+    def _apply_file_manifest_update(self, m):
+        remote = str(m.get("version", "")).strip()
+        files = m.get("files") or []
+        if not remote or not files:
+            raise RuntimeError("Dosya tabanlı güncelleme bilgisi eksik.")
+
+        stage = Path(tempfile.gettempdir()) / f"SolinajEditor_files_{remote}_{int(time.time())}"
+        if stage.exists():
+            shutil.rmtree(stage, ignore_errors=True)
+        stage.mkdir(parents=True, exist_ok=True)
+
+        total = len(files)
+        for i, item in enumerate(files, 1):
+            rel = str(item.get("path", "")).replace("\\", "/").lstrip("/")
+            file_url = str(item.get("url", "")).strip()
+            if not rel or not file_url or ".." in Path(rel).parts:
+                raise RuntimeError(f"Geçersiz güncelleme dosyası: {rel}")
+
+            target = stage / Path(rel)
+            target.parent.mkdir(parents=True, exist_ok=True)
+
+            sep = "&" if "?" in file_url else "?"
+            fresh_url = f"{file_url}{sep}v={remote}&ts={int(time.time())}"
+            req = urllib.request.Request(
+                fresh_url,
+                headers={
+                    "User-Agent": "SolinajEditorUpdater",
+                    "Cache-Control": "no-cache",
+                    "Pragma": "no-cache"
+                }
+            )
+            with urllib.request.urlopen(req, timeout=120) as r, open(target, "wb") as f:
+                shutil.copyfileobj(r, f)
+
+            expected = str(item.get("sha256", "")).strip().lower()
+            if expected:
+                got = hashlib.sha256(target.read_bytes()).hexdigest()
+                if got != expected:
+                    raise RuntimeError(f"{rel} doğrulanamadı.")
+
+            pct = 10 + (i / max(1, total)) * 75
+            self.after(0, lambda p=pct, n=i, t=total, rv=remote:
+                self._set_update_ui(
+                    f"V{rv} dosyaları indiriliyor...",
+                    f"Dosya {n}/{t}",
+                    p, title="Güncelleme indiriliyor", badge=""))
+
+        root = Path(__file__).resolve().parent
+        self.after(0, lambda r=remote:
+            self._set_update_ui(
+                f"V{r} indirildi. Kurulum başlatılıyor...",
+                "Kuruluyor • program birazdan kapanacak",
+                92, title="Güncelleme kuruluyor", badge=""))
+
+        subprocess.Popen([
+            "powershell.exe","-NoProfile","-ExecutionPolicy","Bypass","-File",
+            str(root/"AUTO_UPDATE_FILES_APPLY.ps1"),
+            "-StageDir",str(stage),
+            "-InstallDir",str(root),
+            "-Launcher",str(root/"SolinajEditor_Launcher.vbs"),
+            "-PythonExe",sys.executable,
+            "-TargetVersion",remote
+        ], creationflags=getattr(subprocess,"CREATE_NO_WINDOW",0))
+
+        self.after(0, lambda:
+            self._set_update_ui(
+                "Dosyalar kuruluyor. SOLINAJ EDITOR otomatik yeniden açılacak.",
+                "Kurulum başladı ✓",
+                100, title="Kurulum başladı", badge="✓ Yeniden başlatılacak"))
+        self.after(900, self.destroy)
+
+    def _update_worker(self):
+        self.after(0, lambda: self.status.set("Güncelleme kontrol ediliyor..."))
+        try:
+            cfg=json.loads((Path(__file__).resolve().parent/"update_config.json").read_text(encoding="utf-8-sig"))
+            url=str(cfg.get("manifest_url","")).strip()
+            if not url or url.startswith("BURAYA_"):
+                self.after(0, lambda: self._set_update_ui("Güncelleme adresi tanımlı değil.", "İşlem durduruldu", 0))
+                self.after(0, lambda: messagebox.showinfo("Güncelleme",
+                    "İnternetten otomatik güncelleme için kalıcı güncelleme adresi tanımlanması gerekiyor."))
+                self.after(0, lambda: self.status.set("Hazır"))
+                self.after(0, self._finish_update_check)
+                return
+
+            req=urllib.request.Request(url,headers={"User-Agent":"SolinajEditorUpdater","Cache-Control":"no-cache"})
+            with urllib.request.urlopen(req,timeout=20) as r:
+                m=json.loads(r.read().decode("utf-8-sig"))
+
+            remote=str(m.get("version","0.0.0"))
+            def vt(v):
+                return tuple(int(x) if x.isdigit() else 0 for x in (v.split(".")+["0","0"])[:3])
+
+            if vt(remote)<=vt(APP_VERSION):
+                self.after(0, lambda: self._set_update_ui(
+                    f"Kurulu sürüm V{APP_VERSION}. Yeni bir güncelleme bulunamadı.", "Güncel ✓", 100, title="Program güncel", badge=f"✓ Program Güncel — V{APP_VERSION}"))
+                self.after(0, lambda: messagebox.showinfo("Güncelleme",
+                    f"En güncel sürümü kullanıyorsun.\n\nKurulu sürüm: V{APP_VERSION}"))
+                self.after(0, lambda: self.status.set("Hazır"))
+                self.after(0, self._finish_update_check)
+                return
+
+            if m.get("files"):
+                self.after(0, lambda r=remote: self.status.set(f"V{r} bulundu • dosya güncellemesi hazırlanıyor..."))
+                return self._apply_file_manifest_update(m)
+
+            package=str(m.get("package_url","")).strip()
+            if not package:
+                raise RuntimeError("Güncelleme paket adresi yok.")
+
+            notes=str(m.get("notes","")).strip()
+            info = f"Yeni sürüm bulundu: V{remote}"
+            if notes:
+                info += f"\n{notes[:180]}"
+            self.after(0, lambda s=info: self._set_update_ui(s, "İndirme hazırlanıyor...", 10, title="Yeni güncelleme bulundu", badge=""))
+            self.after(0, lambda r=remote: self.status.set(f"V{r} bulundu • indirme hazırlanıyor..."))
+
+            tmp=Path(tempfile.gettempdir())/f"SolinajEditor_{remote}.zip"
+            try:
+                if tmp.exists():
+                    tmp.unlink()
+            except Exception:
+                pass
+
+            expected=str(m.get("sha256","")).strip().lower()
+            last_error=None
+
+            for attempt in range(1, 4):
+                try:
+                    sep="&" if "?" in package else "?"
+                    fresh_url=f"{package}{sep}v={remote}&attempt={attempt}&ts={int(time.time())}"
+                    req=urllib.request.Request(
+                        fresh_url,
+                        headers={
+                            "User-Agent":"SolinajEditorUpdater",
+                            "Cache-Control":"no-cache",
+                            "Pragma":"no-cache"
+                        }
+                    )
+                    with urllib.request.urlopen(req,timeout=120) as r, open(tmp,"wb") as f:
+                        total=int(r.headers.get("Content-Length") or 0)
+                        done=0
+                        while True:
+                            chunk=r.read(1024*512)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                            done+=len(chunk)
+                            if total:
+                                pct=done*100/total
+                                display=max(10, min(85, 10 + pct*0.75))
+                                self.after(0, lambda p=display, raw=pct, rv=remote:
+                                    self._set_update_ui(
+                                        f"V{rv} indiriliyor...",
+                                        f"İndiriliyor • %{raw:.0f}",
+                                        p, title="Güncelleme indiriliyor", badge=""))
+                    if expected:
+                        got=hashlib.sha256(tmp.read_bytes()).hexdigest()
+                        if got!=expected:
+                            raise RuntimeError(
+                                f"SHA256 uyuşmadı. Beklenen: {expected[:12]}... Alınan: {got[:12]}...")
+                    last_error=None
+                    break
+                except Exception as ex:
+                    last_error=ex
+                    try:
+                        if tmp.exists():
+                            tmp.unlink()
+                    except Exception:
+                        pass
+                    if attempt < 3:
+                        self.after(0, lambda a=attempt+1:
+                            self._set_update_ui(
+                                f"İndirme tekrar deneniyor... ({a}/3)",
+                                "Bağlantı yeniden deneniyor...",
+                                12))
+                        time.sleep(1)
+
+            if last_error is not None:
+                raise RuntimeError(f"Güncelleme paketi doğrulanamadı. {last_error}")
+
+            self.after(0, lambda r=remote:
+                self._set_update_ui(
+                    f"V{r} indirildi. Kurulum başlatılıyor...",
+                    "Kuruluyor • program birazdan kapanacak",
+                    92, title="Güncelleme kuruluyor", badge=""))
+            self.after(0, lambda: self.status.set("Güncelleme indirildi • kuruluyor..."))
+
+            root=Path(__file__).resolve().parent
+            subprocess.Popen([
+                "powershell.exe","-NoProfile","-ExecutionPolicy","Bypass","-File",
+                str(root/"AUTO_UPDATE_APPLY.ps1"),
+                "-ZipPath",str(tmp),
+                "-InstallDir",str(root),
+                "-Launcher",str(root/"SolinajEditor_Launcher.vbs"),
+                "-PythonExe",sys.executable,
+                "-T
