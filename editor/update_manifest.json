@@ -1,51 +1,16 @@
 {
-  "version": "2.6.0",
-  "notes": "SOLINAJ EDITOR V2.6.0: gerçek internet güncelleme kanalı, güvenli dosya tabanlı kurulum ve güncelleme merkezi.",
+  "version": "2.5.2",
+  "notes": "SOLINAJ EDITOR V2.5.2: ZIP yüklemeden çalışan yeni dosya tabanlı güncelleme kanalı test sürümü. Güncelleme doğrudan gerekli dosyaları indirir ve programı yeniden açar.",
   "files": [
     {
-      "path": "app.py",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/app.py",
-      "sha256": "7da4366ccb2cbeffa34b58c724f2d8f55bc38e38987fb8332eea499c9da09775"
-    },
-    {
-      "path": "AUTO_UPDATE_FILES_APPLY.ps1",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/AUTO_UPDATE_FILES_APPLY.ps1",
-      "sha256": "9f8147cc2714f05197b6c02bd7ddba554f5dcc9f34913d41a0eb76b07e06d3b7"
-    },
-    {
       "path": "modules/versioning.py",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/modules/versioning.py",
-      "sha256": "c0ee0be62e910cb4dd9752f2346d305e9d014871485570db386352d8bb7d0f5f"
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.5.2/modules/versioning.py",
+      "sha256": "9a438b8e02ea219248573c82c77d9dd48d4b1278d1cc523609d09fd5b65762c3"
     },
     {
-      "path": "payload_v260/app_part_01.txt",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/payload_v260/app_part_01.txt",
-      "sha256": "0cca100d923b57ca6374729f6316310f56f3b1753ffe37b9be778d7d3801dbca"
-    },
-    {
-      "path": "payload_v260/app_part_02.txt",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/payload_v260/app_part_02.txt",
-      "sha256": "958ca8eebfef9eccee5b0e12df87a947f635be31ebb24f8deafe797d52b74477"
-    },
-    {
-      "path": "payload_v260/app_part_03.txt",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/payload_v260/app_part_03.txt",
-      "sha256": "a2fc6ba107d804da3c175163c24685651897d6498574a42d22fabb4336b7eace"
-    },
-    {
-      "path": "payload_v260/app_part_04.txt",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/payload_v260/app_part_04.txt",
-      "sha256": "a9bc081d5a7752b229a3b5aa73940ac90598b57b59b7de941c3b02e783cf2b73"
-    },
-    {
-      "path": "payload_v260/app_part_05.txt",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/payload_v260/app_part_05.txt",
-      "sha256": "deac5dcad08e80e1860257e9396fd5d31e6462e1a256b3eb9e1430a5fb5b5b41"
-    },
-    {
-      "path": "payload_v260/app_part_06.txt",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.6.0/payload_v260/app_part_06.txt",
-      "sha256": "1bd1b62eec9b5c12b1542898e4830ff1aaa1c19cd5e04f65db610101cc3449d3"
+      "path": "V2_5_2_DOSYA_KANALI_TEST.txt",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.5.2/V2_5_2_DOSYA_KANALI_TEST.txt",
+      "sha256": "176b67e63bc868a4d435ceee242f142659385b8b475aa9164cdfd2090b1b6213"
     }
   ]
 }
