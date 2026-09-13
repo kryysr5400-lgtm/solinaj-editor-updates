@@ -1,6 +1,6 @@
 {
-  "version": "16.7",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_7_update_button_fix_patch.py",
-  "patch_sha256": "25a1ab71c8fbeb59dad5745d5c4dc779cd68294e079ee5e92145ad7f7b665e09",
-  "notes": "V16.7: Güncelleme düğmesine basınca yaşanan takılma düzeltildi. Eski harici güncelleyici çağrısı yerine uygulamanın dahili güvenli güncelleme sistemi kullanılır ve sunucu kontrolü arka planda çalışır. V16.6 heartbeat arayüzü korunur."
+  "version": "16.8",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_8_update_threadsafe_patch.py",
+  "patch_sha256": "5a60158d64f0504db619a1dcfa357b93ac9e3e025c388d0fe85b9270039dfd51",
+  "notes": "V16.8: Güncelle düğmesindeki takılma thread/Tkinter seviyesinde düzeltildi. Worker thread artık Tkinter çağrısı yapmaz; manifest ve indirme sonuçları ana arayüz thread'i tarafından poll edilir. Güncelleme kontrolüne zaman aşımı eklendi ve program güncelse modal bilgi penceresi açılmadan durum satırı güncellenir."
 }
