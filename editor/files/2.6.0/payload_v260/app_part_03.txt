@@ -1,0 +1,313 @@
+.selected_media is None:
+            first = str(len(self.media_files)-len(paths))
+            try:
+                self.media_tree.selection_set(first)
+                self._select_media_path(self.media_files[int(first)])
+            except Exception:
+                pass
+
+    def _media_selected(self, event=None):
+        sel = self.media_tree.selection()
+        if not sel:
+            return
+        try:
+            p = self.media_files[int(sel[0])]
+        except Exception:
+            return
+        self._select_media_path(p)
+
+    def _select_media_path(self, p):
+        self.selected_media = p
+        self.input_path.set(p)
+        try:
+            self.duration = probe_duration(p) or 0
+        except Exception:
+            self.duration = 0
+        self.start_time.set("00:00:00")
+        if self.duration:
+            self.end_time.set(self._fmt(self.duration))
+        pp = Path(p)
+        self.output_path.set(str(pp.with_name(pp.stem + "_solinaj_edit.mp4")))
+        self.playhead.set(0)
+        self.time_lbl.config(text=f"00:00:00 / {self._fmt(self.duration)}")
+        self.status.set(f"Seçildi: {pp.name}")
+        self._draw_preview_placeholder()
+        self._draw_timeline()
+
+    def add_selected_to_timeline(self):
+        if not self.selected_media:
+            messagebox.showinfo("Timeline", "Önce soldan bir medya seç.")
+            return
+        self.status.set(f"Timeline'a eklendi: {Path(self.selected_media).name}")
+        self._draw_timeline()
+
+    def _timeline_click(self, e):
+        label_w=105
+        if e.x < label_w:
+            return
+        w=max(1,self.timeline.winfo_width())
+        dur=max(60.0,self.duration or 60.0)
+        px=max(2.0,(w-label_w)/dur)*self.timeline_zoom.get()
+        sec=max(0,(e.x-label_w)/px)
+        if self.duration:
+            sec=min(sec,self.duration)
+        self._seek(sec)
+
+    def _seek(self, sec):
+        sec = float(sec or 0)
+        if self.duration:
+            sec = max(0.0, min(sec, self.duration))
+        else:
+            sec = max(0.0, sec)
+        self.playhead.set(sec)
+        self.time_lbl.config(text=f"{self._fmt(self.playhead.get())} / {self._fmt(self.duration)}")
+        self._draw_timeline()
+        if self.preview_playing:
+            self._start_preview_from(sec)
+
+    def _step(self, delta):
+        self._seek(max(0, min(self.duration or 999999, self.playhead.get()+delta)))
+
+    def split_clip(self):
+        if not self.selected_media:
+            messagebox.showinfo("Böl", "Önce bir video seç.")
+            return
+        t = self.playhead.get()
+        self.start_time.set(self._fmt(t))
+        self.status.set(f"Kesme noktası ayarlandı: {self._fmt(t)}")
+
+    def remove_clip(self):
+        if not self.selected_media:
+            messagebox.showinfo("Sil", "Timeline'da seçili video yok.")
+            return
+        self.stop_preview(reset=True)
+        self.status.set("Timeline görünümünden klip kaldırıldı (dosya silinmedi).")
+        self.selected_media=None
+        self.input_path.set("")
+        self.duration=0
+        self.playhead.set(0)
+        self._draw_preview_placeholder()
+        self._draw_timeline()
+
+    def _preview_open(self):
+        # Eski Windows oynatıcısı davranışı yerine gerçek uygulama içi önizleme.
+        self.toggle_preview()
+
+    def toggle_preview(self):
+        if not self.selected_media or not Path(self.selected_media).exists():
+            messagebox.showinfo("Player", "Önce bir video seç.")
+            return
+        if self.preview_playing:
+            self.pause_preview()
+        else:
+            self._start_preview_from(self.playhead.get())
+
+    def pause_preview(self):
+        if not self.preview_playing:
+            return
+        self._stop_preview_processes()
+        self.preview_playing = False
+        self.preview_paused = True
+        if hasattr(self, "play_button"):
+            self.play_button.config(text="▶")
+        self.status.set(f"Player duraklatıldı • {self._fmt(self.playhead.get())}")
+
+    def stop_preview(self, reset=False):
+        self._stop_preview_processes()
+        self.preview_playing = False
+        self.preview_paused = False
+        if reset:
+            self.playhead.set(0)
+        if hasattr(self, "play_button"):
+            self.play_button.config(text="▶")
+        self.time_lbl.config(text=f"{self._fmt(self.playhead.get())} / {self._fmt(self.duration)}")
+        self._draw_preview_placeholder()
+        self._draw_timeline()
+        self.status.set("Player durduruldu.")
+
+    def _stop_preview_processes(self):
+        self.preview_generation += 1
+        for proc_name in ("preview_video_proc", "preview_audio_proc"):
+            proc = getattr(self, proc_name, None)
+            if proc is not None:
+                try:
+                    if proc.poll() is None:
+                        proc.terminate()
+                except Exception:
+                    try:
+                        proc.kill()
+                    except Exception:
+                        pass
+                setattr(self, proc_name, None)
+
+    def _find_ffplay(self):
+        candidates = [
+            shutil.which("ffplay"),
+            str(Path(__file__).resolve().parent / "ffmpeg" / "bin" / "ffplay.exe"),
+        ]
+        for p in candidates:
+            if p and Path(p).exists():
+                return p
+        return None
+
+    def _start_preview_from(self, start_sec):
+        ffmpeg = find_ffmpeg()
+        if not ffmpeg:
+            messagebox.showerror("Player", "FFmpeg bulunamadı. V2.2.6 FFmpeg onarım paketini yeniden çalıştır.")
+            return
+        self._stop_preview_processes()
+        self.preview_generation += 1
+        generation = self.preview_generation
+        start_sec = max(0.0, float(start_sec or 0))
+        self.playhead.set(start_sec)
+
+        # Görüntüyü PPM kareleri olarak doğrudan Tkinter Canvas'a aktar.
+        cmd = [
+            ffmpeg, "-hide_banner", "-loglevel", "error",
+            "-ss", str(start_sec), "-re", "-i", self.selected_media,
+            "-an",
+            "-vf", "scale=854:480:force_original_aspect_ratio=decrease,pad=854:480:(ow-iw)/2:(oh-ih)/2,fps=20",
+            "-f", "image2pipe", "-vcodec", "ppm", "pipe:1"
+        ]
+        try:
+            self.preview_video_proc = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+        except Exception as e:
+            messagebox.showerror("Player", str(e))
+            return
+
+        # FFplay varsa sesi görünmez biçimde eş zamanlı başlat.
+        ffplay = self._find_ffplay()
+        if ffplay:
+            try:
+                self.preview_audio_proc = subprocess.Popen(
+                    [ffplay, "-nodisp", "-autoexit", "-loglevel", "quiet",
+                     "-ss", str(start_sec), self.selected_media],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                )
+            except Exception:
+                self.preview_audio_proc = None
+
+        self.preview_playing = True
+        self.preview_paused = False
+        if hasattr(self, "play_button"):
+            self.play_button.config(text="⏸")
+        self.status.set("Player oynatılıyor..." + ("" if ffplay else " • Ses önizlemesi için ffplay bulunamadı"))
+        self.preview_thread = threading.Thread(
+            target=self._preview_reader, args=(self.preview_video_proc, generation, start_sec), daemon=True
+        )
+        self.preview_thread.start()
+
+    def _preview_reader(self, proc, generation, start_sec):
+        stream = proc.stdout
+        frame_index = 0
+        fps = 20.0
+        try:
+            while stream and generation == self.preview_generation:
+                magic = stream.readline()
+                if not magic:
+                    break
+                if magic.strip() != b"P6":
+                    continue
+                size_line = stream.readline()
+                while size_line.startswith(b"#"):
+                    size_line = stream.readline()
+                try:
+                    width, height = [int(x) for x in size_line.strip().split()]
+                except Exception:
+                    break
+                maxv = stream.readline()
+                if not maxv:
+                    break
+                need = width * height * 3
+                data = bytearray()
+                while len(data) < need:
+                    chunk = stream.read(need - len(data))
+                    if not chunk:
+                        break
+                    data.extend(chunk)
+                if len(data) != need:
+                    break
+                ppm = b"P6\n%d %d\n255\n" % (width, height) + bytes(data)
+                current = start_sec + frame_index / fps
+                frame_index += 1
+                self.after(0, lambda d=ppm, t=current, g=generation: self._show_preview_frame(d, t, g))
+        except Exception:
+            pass
+        finally:
+            if generation == self.preview_generation:
+                self.after(0, lambda g=generation: self._preview_finished(g))
+
+    def _show_preview_frame(self, ppm_data, current, generation):
+        if generation != self.preview_generation or not self.preview_playing:
+            return
+        try:
+            photo = tk.PhotoImage(data=ppm_data, format="PPM")
+            self._preview_photo = photo
+            c = self.stage
+            c.delete("all")
+            c.create_image(c.winfo_width()/2, c.winfo_height()/2, image=photo, anchor="center")
+            self.playhead.set(current)
+            self.time_lbl.config(text=f"{self._fmt(current)} / {self._fmt(self.duration)}")
+            self._draw_timeline()
+        except Exception as e:
+            self.status.set(f"Player kare hatası: {e}")
+
+    def _preview_finished(self, generation):
+        if generation != self.preview_generation:
+            return
+        self.preview_playing = False
+        if hasattr(self, "play_button"):
+            self.play_button.config(text="▶")
+        if self.duration and self.playhead.get() >= self.duration - 0.2:
+            self.playhead.set(self.duration)
+        self.status.set("Player tamamlandı.")
+
+    def _refresh_view(self):
+        self._draw_preview_placeholder()
+        self._draw_timeline()
+        self.status.set("Görünüm yenilendi.")
+
+    def _show_help(self):
+        messagebox.showinfo(
+            "Solinaj Editor Yardım",
+            "V2.2 Kontrolleri\n\n"
+            "• + İçe Aktar: video seç\n"
+            "• ▶ / ⏸: uygulama içinde oynat/duraklat\n"
+            "• ⏹: durdur\n"
+            "• ◀ 5s / 5s ▶: geri/ileri sar\n"
+            "• Timeline'a tıklayarak konuma git\n"
+            "• Ctrl+O: içe aktar, Space: oynat/duraklat, Ctrl+E: dışa aktar"
+        )
+
+    def _focus_text_overlay(self):
+        self.status.set("Metin aracını sağdaki 'Ekran Yazısı' alanından düzenleyebilirsin.")
+
+    def _format_changed(self):
+        fmt = self.aspect.get()
+        self.preview_format.config(text="9:16" if "9:16" in fmt else "1:1" if "1:1" in fmt else "16:9")
+        self._draw_preview_placeholder()
+
+    def pick_output(self):
+        p = filedialog.asksaveasfilename(defaultextension=".mp4", filetypes=[("MP4","*.mp4")])
+        if p:
+            self.output_path.set(p)
+
+    def pick_logo(self):
+        p = filedialog.askopenfilename(filetypes=[("Görsel","*.png *.jpg *.jpeg *.webp")])
+        if p:
+            self.logo_path.set(p)
+
+
+    def _load_builtin_media_library(self):
+        """Solinaj'ın dahili ve kullanıcının eklediği medya kütüphanesini yükler."""
+        base = Path(__file__).resolve().parent
+        lib = base / "media_library"
+        music = lib / "music"
+        stickers = lib / "stickers"
+        music.mkdir(parents=True, exist_ok=True)
+        stickers.mkdir(parents=True, exist_ok=True)
+        self.music_library = sorted([p for p in music.rglob("*") if p.suffix.lower() in {".mp3",".wav","
