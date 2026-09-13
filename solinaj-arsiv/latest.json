@@ -1,6 +1,6 @@
 {
-  "version": "16.1",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_1_embedded_windows_panel_patch.py",
-  "patch_sha256": "b77ef219a5927d1500d3f6fab59310dcd373b864608e3c6ef0e76ec971da6451",
-  "notes": "V16.1: Ana ekrandaki eski orta ilerleme çubuğu kaldırılır. TARA başlatıldığında uygulama penceresinin içinde Windows dosya kopyalama ekranına benzeyen yerleşik Arşivleme İşlemi paneli açılır; dosya adı, kaynak, hedef, yüzde, hız ve ilerleme gösterilir. Ayrı pencere açılmaz. DURAKLAT/DEVAM ET aynı çalışan işlemi kontrol eder ve mevcut tarama/kopyalama mantığı korunur."
+  "version": "16.2",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_2_windows_transfer_panel_patch.py",
+  "patch_sha256": "8e372ff0a90a14f9804bcc79d59f64e2728574de9d2c322111a0895573a9cce0",
+  "notes": "V16.2: Ana ekrandaki eski 'Arşivleme Devam Ediyor' alanı Windows 11 tarzı yerleşik işlem paneline dönüştürüldü. Panel program açılır açılmaz görünür; aktif dosya, kaynak, hedef, yüzde, hız, dosya sayısı ve tahmini kalan süreyi canlı gösterir. Tarama/kopyalama mantığı korunur, ayrı pencere açılmaz ve panel işlem bitince ekranda kalır."
 }
