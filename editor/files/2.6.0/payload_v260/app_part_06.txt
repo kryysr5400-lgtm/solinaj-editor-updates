@@ -1,0 +1,164 @@
+argetVersion",remote
+            ], creationflags=getattr(subprocess,"CREATE_NO_WINDOW",0))
+
+            self.after(0, lambda:
+                self._set_update_ui(
+                    "Dosyalar kuruluyor. SOLINAJ EDITOR otomatik yeniden açılacak.",
+                    "Kurulum başladı ✓",
+                    100, title="Kurulum başladı", badge="✓ Yeniden başlatılacak"))
+            self.after(900, self.destroy)
+
+        except Exception as e:
+            msg=str(e)
+            self.after(0, lambda m=msg: self._set_update_ui(
+                "Güncelleme tamamlanamadı.", m[:120], 0, title="Güncelleme hatası", badge=""))
+            self.after(0, lambda m=msg: messagebox.showerror("Güncelleme Hatası",m))
+            self.after(0, lambda: self.status.set("Güncelleme hatası"))
+            self.after(0, self._finish_update_check)
+
+    def start_export(self):
+        if not self.input_path.get() or not Path(self.input_path.get()).exists():
+            messagebox.showwarning("Eksik", "Önce bir video seç ve timeline'a ekle.")
+            return
+        if not find_ffmpeg():
+            messagebox.showerror("FFmpeg yok", "FFmpeg bulunamadı. README dosyasındaki kurulumu uygula.")
+            return
+        if not self.output_path.get():
+            self.pick_output()
+            if not self.output_path.get():
+                return
+        self.progress.set(0)
+        self.status.set("Dışa aktarma hazırlanıyor...")
+        threading.Thread(target=self._export_worker, daemon=True).start()
+
+    def _export_worker(self):
+        try:
+            export_video(
+                input_path=self.input_path.get(),
+                output_path=self.output_path.get(),
+                start_time=self.start_time.get(),
+                end_time=self.end_time.get(),
+                aspect=self.aspect.get(),
+                speed=float(self.speed.get()),
+                volume=float(self.volume.get()),
+                text=self.overlay_text.get().strip(),
+                logo_path=self.logo_path.get().strip(),
+                music_path=self.selected_music_path,
+                music_volume=float(self.music_volume.get()),
+                progress_cb=self._on_progress,
+                status_cb=self._on_status,
+            )
+            self.after(0, lambda:self._done(True, "Dışa aktarma tamamlandı."))
+        except Exception as e:
+            self.after(0, lambda:self._done(False, str(e)))
+
+    def _on_progress(self, val):
+        self.after(0, lambda:self.progress.set(max(0,min(100,val))))
+
+    def _on_status(self, text):
+        self.after(0, lambda:self.status.set(text))
+
+    def _done(self, ok, msg):
+        self.status.set(msg)
+        if ok:
+            self.progress.set(100)
+            messagebox.showinfo("Tamam", msg)
+        else:
+            messagebox.showerror("Hata", msg)
+
+    def _startup_check(self):
+        if find_ffmpeg():
+            self.status.set(f"Hazır • FFmpeg bulundu • Solinaj Editor V{APP_VERSION}")
+        else:
+            self.status.set("FFmpeg bulunamadı • KURULUM.bat veya README adımlarını uygula")
+
+        marker = Path(__file__).resolve().parent / "update_success.json"
+        if marker.exists():
+            try:
+                data = json.loads(marker.read_text(encoding="utf-8-sig"))
+                version = str(data.get("version") or APP_VERSION)
+                marker.unlink(missing_ok=True)
+                self.status.set(f"Güncelleme tamamlandı • V{version}")
+                self.after(500, lambda v=version: messagebox.showinfo(
+                    "Güncelleme Tamamlandı",
+                    f"SOLINAJ EDITOR başarıyla güncellendi.\n\nYeni sürüm: V{v}\n\nProgram otomatik olarak yeniden açıldı."))
+            except Exception:
+                try:
+                    marker.unlink(missing_ok=True)
+                except Exception:
+                    pass
+
+    def _bind_shortcuts(self):
+        self.bind("<Control-o>", lambda e:self.import_media())
+        self.bind("<Control-e>", lambda e:self.start_export())
+        self.bind("<Delete>", lambda e:self.remove_clip())
+        self.bind("<Control-b>", lambda e:self.split_clip())
+        self.bind("<space>", lambda e:self.toggle_preview())
+        self.bind("<Escape>", lambda e:self.stop_preview())
+
+    def _fmt(self, sec):
+        try:
+            sec=int(float(sec or 0))
+        except Exception:
+            sec=0
+        h=sec//3600; m=(sec%3600)//60; s=sec%60
+        return f"{h:02d}:{m:02d}:{s:02d}"
+
+    def _fmt_short(self, sec):
+        try:
+            sec=int(float(sec or 0))
+        except Exception:
+            sec=0
+        if sec >= 3600:
+            return self._fmt(sec)
+        return f"{sec//60:02d}:{sec%60:02d}"
+
+    def on_close(self):
+        self._stop_preview_processes()
+        self.settings["last_input"]=self.input_path.get()
+        save_settings(self.settings)
+        self.destroy()
+
+
+
+# --- V2.4.0 CapCut-benzeri görünüm rötuşları ---
+def _solinaj_capcut_polish(root):
+    """Mevcut çalışan widget/callback yapısını bozmadan koyu masaüstü editör görünümü."""
+    try:
+        root.configure(bg="#111318")
+        root.option_add("*Font", ("Segoe UI", 10))
+        root.option_add("*Background", "#17191f")
+        root.option_add("*Foreground", "#f2f3f5")
+        root.option_add("*Button.Background", "#22262e")
+        root.option_add("*Button.Foreground", "#f2f3f5")
+        root.option_add("*Entry.Background", "#171a20")
+        root.option_add("*Entry.Foreground", "#f2f3f5")
+        root.option_add("*Listbox.Background", "#13161b")
+        root.option_add("*Listbox.Foreground", "#e8eaf0")
+        root.option_add("*Listbox.selectBackground", "#3a7afe")
+        root.option_add("*Listbox.selectForeground", "#ffffff")
+        root.option_add("*Canvas.Background", "#0d0f13")
+    except Exception:
+        pass
+
+if __name__ == "__main__":
+    try:
+        app=SolinajEditor()
+        app.protocol("WM_DELETE_WINDOW", app.on_close)
+        app.mainloop()
+    except Exception:
+        import traceback
+        try:
+            log_path = Path(__file__).resolve().parent / "solinaj_editor_crash.log"
+            log_path.write_text(traceback.format_exc(), encoding="utf-8")
+        except Exception:
+            pass
+        try:
+            import tkinter.messagebox as _mb
+            _mb.showerror(
+                "Solinaj Editor Başlatma Hatası",
+                "Program açılırken bir hata oluştu.\n\n"
+                "Ayrıntı: solinaj_editor_crash.log"
+            )
+        except Exception:
+            pass
