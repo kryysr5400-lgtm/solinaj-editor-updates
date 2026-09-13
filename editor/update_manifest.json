@@ -1,5 +1,16 @@
 {
-  "version": "2.6.0",
-  "notes": "SOLINAJ EDITOR V2.6.0 - otomatik internet güncelleme altyapısı ve güvenli kurulum.",
-  "package_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/releases/Solinaj_Editor_V2_6_0_GITHUB_GUNCELLEME_HAZIR.zip"
+  "version": "2.5.2",
+  "notes": "SOLINAJ EDITOR V2.5.2: ZIP yüklemeden çalışan yeni dosya tabanlı güncelleme kanalı test sürümü. Güncelleme doğrudan gerekli dosyaları indirir ve programı yeniden açar.",
+  "files": [
+    {
+      "path": "modules/versioning.py",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.5.2/modules/versioning.py",
+      "sha256": "9a438b8e02ea219248573c82c77d9dd48d4b1278d1cc523609d09fd5b65762c3"
+    },
+    {
+      "path": "V2_5_2_DOSYA_KANALI_TEST.txt",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.5.2/V2_5_2_DOSYA_KANALI_TEST.txt",
+      "sha256": "176b67e63bc868a4d435ceee242f142659385b8b475aa9164cdfd2090b1b6213"
+    }
+  ]
 }
