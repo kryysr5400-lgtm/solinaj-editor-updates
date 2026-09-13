@@ -1,26 +1,16 @@
 {
-  "version": "2.8.12",
-  "notes": "SOLINAJ SHORTS V2.8.12: güncelleme sonrası uygulamanın otomatik yeniden açılmaması düzeltildi. Shorts launcher ve güncelleme yeniden başlatma akışı güçlendirildi.",
+  "version": "2.8.13",
+  "notes": "SOLINAJ SHORTS V2.8.13: kullanıcı tarafından doğrulanan açılış ve siyah ekran düzeltmesi. Güncelleme kanalı güvenli launcher ve sürüm bilgisiyle yayınlandı.",
   "files": [
     {
       "path": "modules/versioning.py",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/modules/versioning.py",
-      "sha256": "073126c8ace1f97b2fd4c27b9a7946f0fe6807c5188473254e9e49b8e9bdc3df"
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.13/modules/versioning.py",
+      "sha256": "5d5c1f2971c43b76f4e3313ffd7b3088e7a160b0785d7307dd9bbece3bdfd387"
     },
     {
       "path": "SolinajShorts_Launcher.vbs",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/SolinajShorts_Launcher.vbs",
-      "sha256": "236321f48a0849356d7a6d363a6bb37f58a8f108c1fcc1be421877df17036a4c"
-    },
-    {
-      "path": "SolinajEditor_Launcher.vbs",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/SolinajEditor_Launcher.vbs",
-      "sha256": "236321f48a0849356d7a6d363a6bb37f58a8f108c1fcc1be421877df17036a4c"
-    },
-    {
-      "path": "AUTO_UPDATE_FILES_APPLY.ps1",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/AUTO_UPDATE_FILES_APPLY.ps1",
-      "sha256": "329c0fedea21f7dfc45ef78ffb69bd0e79b01aa308b2292fee4886afbf8ee656"
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.13/SolinajShorts_Launcher.vbs",
+      "sha256": "4acd18280e26fb015db70a1ea91ee711dc30615bc1b76bfd0f6cc364cbd8f96a"
     }
   ]
 }
