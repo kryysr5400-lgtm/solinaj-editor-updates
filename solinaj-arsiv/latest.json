@@ -1,6 +1,6 @@
 {
-  "version": "15.5",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_5_final_patch.py",
-  "patch_sha256": "647f47d3b96d65f400e8211b33fd3e82d799f6262f032342e239b989ef91793c",
-  "notes": "DURDUR düğmesi güçlendirildi; aktif kopyalama güvenli şekilde kesilir ve yarım dosya temizlenir. Tarama sırasında Windows tarzı hareketli ilerleme çubuğu, dosya işlenirken gerçek yüzde göstergesi kullanılır. V15.4 dosya sınıflandırma ve tekrar kopyalamama sistemi korunur. Güvenli güncelleme mekanizmasına dokunulmadı."
+  "version": "15.6",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_6_patch.py",
+  "patch_sha256": "ac9a1990f559f150301fb6d5ae08684a3cc1791ffa9d2684ad16283a3fc7667f",
+  "notes": "V15.6: DURDUR düğmesi aktif tarama ve kopyalamayı güvenli şekilde keser; yarım kopya temizlenir. TARAMA BAŞLAT ile ilerleme çubuğu hemen Windows tarzı hareketli moda geçer, dosya kopyalanırken gerçek yüzdeyi gösterir. V15.4/V15.5 sınıflandırma ve tekrar kopyalamama sistemi korunur; güvenli internet güncelleyicisine dokunulmaz."
 }
