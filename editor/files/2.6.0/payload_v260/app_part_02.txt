@@ -1,0 +1,229 @@
+         relief="flat", bd=0, padx=7, pady=4, cursor="hand2").pack(side="left")
+        tk.Button(center, text="5s ▶", command=lambda: self._step(5), bg="#0b0c10", fg=TEXT,
+                  activebackground="#191b21", activeforeground=TEXT,
+                  relief="flat", bd=0, padx=7, pady=4, cursor="hand2").pack(side="left")
+        tk.Button(center, text="⏭", command=lambda: self._seek(self.duration), bg="#0b0c10", fg=TEXT,
+                  activebackground="#191b21", activeforeground=TEXT,
+                  relief="flat", bd=0, padx=7, pady=4, cursor="hand2").pack(side="left")
+        tk.Label(controls, text="100%", bg="#0b0c10", fg=MUTED, font=("Segoe UI", 9)).pack(side="right")
+
+    def _build_inspector(self, parent):
+        hdr = tk.Frame(parent, bg=PANEL)
+        hdr.pack(fill="x", padx=14, pady=(13,9))
+        tk.Label(hdr, text="ÖZELLİKLER", bg=PANEL, fg=TEXT, font=("Segoe UI", 11, "bold")).pack(side="left")
+        tk.Frame(parent, bg=BORDER, height=1).pack(fill="x")
+
+        canvas = tk.Canvas(parent, bg=PANEL, highlightthickness=0)
+        scroll = ttk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+        inner = tk.Frame(canvas, bg=PANEL)
+        inner.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0,0), window=inner, anchor="nw", width=310)
+        canvas.configure(yscrollcommand=scroll.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
+        self._inspector_section(inner, "Temel")
+        self._combo(inner, "Tuval / Format", self.aspect,
+                    ["Orijinal", "16:9 YouTube", "9:16 Shorts", "1:1 Kare"],
+                    callback=self._format_changed)
+        self._entry(inner, "Başlangıç", self.start_time)
+        self._entry(inner, "Bitiş", self.end_time)
+
+        self._inspector_section(inner, "Video")
+        self._scale(inner, "Hız", self.speed, 0.5, 2.0, suffix="x")
+        self._scale(inner, "Ses", self.volume, 0.0, 2.0, suffix="x")
+
+        self._inspector_section(inner, "Müzik")
+        self._scale(inner, "Müzik Ses Seviyesi", self.music_volume, 0.0, 1.0, suffix="x")
+        self._button(inner, "♫  Ses / Müzik Kütüphanesi", self.open_music_library).pack(fill="x", padx=14, pady=(0,10))
+
+        self._inspector_section(inner, "Metin")
+        self._entry(inner, "Ekran Yazısı", self.overlay_text)
+
+        self._inspector_section(inner, "Logo / Filigran")
+        lr = tk.Frame(inner, bg=PANEL)
+        lr.pack(fill="x", padx=14, pady=(4,10))
+        tk.Entry(lr, textvariable=self.logo_path, bg="#111319", fg=TEXT, insertbackground=TEXT,
+                 relief="flat", font=("Segoe UI", 9)).pack(side="left", fill="x", expand=True, ipady=7)
+        self._button(lr, "Seç", self.pick_logo).pack(side="left", padx=(6,0))
+
+        self._inspector_section(inner, "Çıktı")
+        self._entry(inner, "Kayıt Yolu", self.output_path)
+        self._button(inner, "Kaydetme Yerini Seç", self.pick_output).pack(fill="x", padx=14, pady=(0,10))
+
+    def _inspector_section(self, parent, title):
+        wrap = tk.Frame(parent, bg=PANEL)
+        wrap.pack(fill="x", padx=14, pady=(15, 7))
+        tk.Label(wrap, text=title.upper(), bg=PANEL, fg="#d7dce5",
+                 font=("Segoe UI", 8, "bold"), anchor="w").pack(side="left")
+        tk.Frame(wrap, bg="#2a2f38", height=1).pack(side="left", fill="x", expand=True, padx=(9, 0))
+
+    def _entry(self, parent, label, var):
+        tk.Label(parent, text=label, bg=PANEL, fg=MUTED, font=("Segoe UI", 9), anchor="w").pack(fill="x", padx=14)
+        tk.Entry(parent, textvariable=var, bg="#111319", fg=TEXT, insertbackground=TEXT, relief="flat",
+                 font=("Segoe UI", 9)).pack(fill="x", padx=14, pady=(3,8), ipady=7)
+
+    def _combo(self, parent, label, var, values, callback=None):
+        tk.Label(parent, text=label, bg=PANEL, fg=MUTED, font=("Segoe UI", 9), anchor="w").pack(fill="x", padx=14)
+        cb = ttk.Combobox(parent, textvariable=var, values=values, state="readonly")
+        cb.pack(fill="x", padx=14, pady=(3,8))
+        if callback:
+            cb.bind("<<ComboboxSelected>>", lambda e: callback())
+
+    def _scale(self, parent, label, var, mn, mx, suffix=""):
+        row = tk.Frame(parent, bg=PANEL)
+        row.pack(fill="x", padx=14)
+        tk.Label(row, text=label, bg=PANEL, fg=MUTED, font=("Segoe UI", 9)).pack(side="left")
+        val = tk.Label(row, text="", bg=PANEL, fg=TEXT, font=("Segoe UI", 9))
+        val.pack(side="right")
+        def refresh(*_):
+            val.config(text=f"{var.get():.2f}{suffix}")
+        var.trace_add("write", refresh)
+        refresh()
+        tk.Scale(parent, variable=var, from_=mn, to=mx, resolution=.05, orient="horizontal",
+                 bg=PANEL, fg=TEXT, troughcolor="#2a2d35", activebackground=ACCENT,
+                 highlightthickness=0, bd=0, showvalue=False).pack(fill="x", padx=14, pady=(0,8))
+
+    def _build_timeline(self, parent):
+        tool = tk.Frame(parent, bg="#15181e", height=48)
+        tool.pack(fill="x")
+        tool.pack_propagate(False)
+        left = tk.Frame(tool, bg="#17191f")
+        left.pack(side="left", padx=10)
+        for t, cmd in [("✂ Böl", self.split_clip), ("🗑 Sil", self.remove_clip),
+                       ("↶ Geri", lambda: self.status.set("Geri alma: V2 arayüz altyapısı hazır")),
+                       ("↷ İleri", lambda: self.status.set("İleri alma: V2 arayüz altyapısı hazır"))]:
+            self._button(left, t, cmd).pack(side="left", padx=3, pady=6)
+
+        right = tk.Frame(tool, bg="#17191f")
+        right.pack(side="right", padx=10)
+        tk.Label(right, text="TIMELINE  •  Yakınlaştır", bg="#17191f", fg=MUTED, font=("Segoe UI", 8, "bold")).pack(side="left")
+        tk.Scale(right, variable=self.timeline_zoom, from_=0.5, to=3.0, resolution=.1,
+                 orient="horizontal", bg="#17191f", fg=TEXT, troughcolor="#2a2d35",
+                 highlightthickness=0, bd=0, showvalue=False,
+                 command=lambda x:self._draw_timeline()).pack(side="left", padx=8)
+
+        self.timeline = tk.Canvas(parent, bg=TIMELINE_BG, highlightthickness=0)
+        self.timeline.pack(fill="both", expand=True)
+        self.timeline.bind("<Configure>", lambda e:self._draw_timeline())
+        self.timeline.bind("<Button-1>", self._timeline_click)
+
+    def _build_statusbar(self):
+        bar = tk.Frame(self, bg="#101217", height=36, highlightthickness=1,
+                       highlightbackground="#282c35")
+        bar.pack(fill="x", side="bottom")
+        bar.pack_propagate(False)
+
+        left = tk.Frame(bar, bg="#101217")
+        left.pack(side="left", fill="y", padx=12)
+        tk.Label(left, text="●", bg="#101217", fg="#67d391",
+                 font=("Segoe UI", 8)).pack(side="left", pady=10)
+        tk.Label(left, textvariable=self.status, bg="#101217", fg="#a8b0bd",
+                 font=("Segoe UI", 8)).pack(side="left", padx=(6, 0))
+
+        right = tk.Frame(bar, bg="#101217")
+        right.pack(side="right", fill="y", padx=12)
+        tk.Label(right, text="FFmpeg Engine", bg="#101217", fg="#6f7785",
+                 font=("Segoe UI", 8)).pack(side="right", padx=(10, 0), pady=10)
+        ttk.Progressbar(right, variable=self.progress, maximum=100,
+                        style="Horizontal.TProgressbar", length=210).pack(
+                            side="right", pady=10)
+
+    def _draw_preview_placeholder(self, event=None):
+        if getattr(self, "preview_playing", False):
+            return
+        c = self.stage
+        c.delete("all")
+        self._preview_photo = None
+        w, h = max(1, c.winfo_width()), max(1, c.winfo_height())
+        if self.aspect.get() == "9:16 Shorts":
+            rw = min(w*.48, h*9/16)
+            rh = rw*16/9
+        elif self.aspect.get() == "1:1 Kare":
+            rw = rh = min(w*.72, h*.72)
+        else:
+            rw = min(w*.86, h*16/9)
+            rh = rw*9/16
+        x1, y1 = (w-rw)/2, (h-rh)/2
+        x2, y2 = x1+rw, y1+rh
+        c.create_rectangle(x1, y1, x2, y2, fill="#08090c", outline="#343741")
+        if self.selected_media:
+            c.create_text(w/2, h/2-16, text=Path(self.selected_media).name,
+                          fill=TEXT, font=("Segoe UI", 14, "bold"), width=max(200,int(rw*.75)))
+            c.create_text(w/2, h/2+18, text="▶  Oynat düğmesiyle burada önizle",
+                          fill=MUTED, font=("Segoe UI", 9))
+        else:
+            c.create_text(w/2, h/2-12, text="MEDYA İÇE AKTAR",
+                          fill=TEXT, font=("Segoe UI", 18, "bold"))
+            c.create_text(w/2, h/2+20, text="Videonu sol panelden ekle ve timeline'a gönder",
+                          fill=MUTED, font=("Segoe UI", 10))
+
+    def _draw_timeline(self):
+        c = self.timeline
+        c.delete("all")
+        w, h = max(1,c.winfo_width()), max(1,c.winfo_height())
+        label_w = 105
+        ruler_h = 28
+        track_h = 52
+        c.create_rectangle(0,0,w,h,fill=TIMELINE_BG,outline="")
+        c.create_rectangle(0,0,w,ruler_h,fill="#17191f",outline="")
+        c.create_text(12, ruler_h/2, text="00:00", fill=MUTED, anchor="w", font=("Consolas",8))
+
+        dur = max(60.0, self.duration or 60.0)
+        px_per_sec = max(2.0, (w-label_w)/dur) * self.timeline_zoom.get()
+        major = 10 if px_per_sec < 8 else 5
+        t = 0
+        while t <= dur:
+            x = label_w + t*px_per_sec
+            if x > w: break
+            c.create_line(x, 20, x, ruler_h, fill="#4a4d57")
+            c.create_text(x+2, 8, text=self._fmt_short(t), fill=MUTED, anchor="nw", font=("Consolas",7))
+            t += major
+
+        tracks = [("V1  Video", TRACK), ("V2  Overlay", TRACK), ("A1  Ses", TRACK)]
+        for i,(name,bg) in enumerate(tracks):
+            y1 = ruler_h + i*track_h
+            y2 = y1 + track_h - 2
+            c.create_rectangle(0,y1,label_w-2,y2,fill="#17191f",outline="")
+            c.create_text(12,(y1+y2)/2,text=name,fill=MUTED,anchor="w",font=("Segoe UI",8,"bold"))
+            c.create_rectangle(label_w,y1,w,y2,fill=bg,outline="")
+
+        if self.selected_media:
+            clip_dur = self.duration or 30
+            clip_w = min(w-label_w-12, max(140, clip_dur*px_per_sec))
+            y1 = ruler_h+4
+            y2 = ruler_h+track_h-6
+            c.create_rectangle(label_w+4,y1,label_w+clip_w,y2,fill=CLIP,outline=ACCENT,width=1,tags=("clip",))
+            c.create_text(label_w+12,(y1+y2)/2,text=Path(self.selected_media).name,
+                          fill=TEXT,anchor="w",font=("Segoe UI",8,"bold"),width=max(80,int(clip_w-30)),tags=("clip",))
+            # audio representation
+            ay1 = ruler_h + 2*track_h + 4
+            ay2 = ay1 + track_h - 10
+            c.create_rectangle(label_w+4,ay1,label_w+clip_w,ay2,fill=AUDIO,outline="#62687a",tags=("clip",))
+            # fake waveform
+            x = label_w+12
+            mid=(ay1+ay2)/2
+            while x < label_w+clip_w-8:
+                amp = 5 + int((x*7)%13)
+                c.create_line(x,mid-amp,x,mid+amp,fill="#8e96ad")
+                x += 7
+
+        # playhead
+        play_x = label_w + self.playhead.get()*px_per_sec
+        play_x = min(max(label_w, play_x), w)
+        c.create_line(play_x,0,play_x,h,fill=RED,width=2)
+        c.create_polygon(play_x-5,0,play_x+5,0,play_x,7,fill=RED,outline="")
+
+    def import_media(self):
+        paths = filedialog.askopenfilenames(
+            title="Medya içe aktar",
+            filetypes=[("Medya", "*.mp4 *.mkv *.mov *.avi *.webm *.mp3 *.wav *.m4a"),
+                       ("Tüm dosyalar","*.*")]
+        )
+        for p in paths:
+            if p not in self.media_files:
+                self.media_files.append(p)
+                dur = probe_duration(p) if Path(p).suffix.lower() not in {".mp3",".wav",".m4a"} else None
+                self.media_tree.insert("", "end", iid=str(len(self.media_files)-1),
+                                       values=(Path(p).name, self._fmt_short(dur) if dur else "—"))
+        if paths and self
