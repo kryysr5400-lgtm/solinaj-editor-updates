@@ -1,0 +1,272 @@
+
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+from pathlib import Path
+import threading, time
+import os
+import subprocess
+import shutil
+import webbrowser
+import sys, json, urllib.request, tempfile, hashlib, re
+
+from modules.ffmpeg_tools import find_ffmpeg, probe_duration, export_video
+from modules.settings import load_settings, save_settings
+from modules.versioning import APP_NAME, APP_VERSION, check_local_manifest
+
+BG = "#0f1014"
+PANEL = "#17181d"
+PANEL2 = "#1d1f25"
+BORDER = "#2a2d35"
+TEXT = "#f4f6fa"
+MUTED = "#9aa1ad"
+ACCENT = "#38d9c5"
+ACCENT_HOVER = "#2fc4b2"
+BTN = "#282b33"
+BTN_HOVER = "#343842"
+TIMELINE_BG = "#111217"
+TRACK = "#1c1f26"
+CLIP = "#284b53"
+AUDIO = "#34394a"
+RED = "#ef5b64"
+
+
+class SolinajEditor(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.music_library = []
+        self.music_meta = {}
+        self.sticker_library = []
+        self.selected_music_path = ""
+        self.music_preview_proc = None
+        self._load_builtin_media_library()
+        self.title(f"{APP_NAME} {APP_VERSION}")
+        self._solinaj_media_menu_added = True
+        media_menu = tk.Menu(self)
+        library_menu = tk.Menu(media_menu, tearoff=0)
+        library_menu.add_command(label="🎵 Telifsiz Müzik", command=self.open_music_library)
+        library_menu.add_command(label="😀 Emoji & Sticker", command=self.open_sticker_library)
+        media_menu.add_cascade(label="Medya", menu=library_menu)
+        self.config(menu=media_menu)
+        self.geometry("1540x930")
+        self.minsize(1220, 780)
+        self.configure(bg=BG)
+
+        self.settings = load_settings()
+        self.media_files = []
+        self.selected_media = None
+        self.duration = 0.0
+
+        self.input_path = tk.StringVar()
+        self.output_path = tk.StringVar()
+        self.start_time = tk.StringVar(value="00:00:00")
+        self.end_time = tk.StringVar(value="")
+        self.aspect = tk.StringVar(value="16:9 YouTube")
+        self.speed = tk.DoubleVar(value=1.0)
+        self.volume = tk.DoubleVar(value=1.0)
+        self.music_volume = tk.DoubleVar(value=0.35)
+        self.overlay_text = tk.StringVar(value="")
+        self.logo_path = tk.StringVar(value="")
+        self.status = tk.StringVar(value="Hazır")
+        self.progress = tk.DoubleVar(value=0)
+        self.playhead = tk.DoubleVar(value=0.0)
+        self.timeline_zoom = tk.DoubleVar(value=1.0)
+
+        # Gerçek önizleme oynatma durumu
+        self.preview_playing = False
+        self.preview_paused = False
+        self.preview_video_proc = None
+        self.preview_audio_proc = None
+        self.preview_thread = None
+        self.preview_generation = 0
+        self._preview_photo = None
+
+        self._style()
+        self._build_ui()
+        self._bind_shortcuts()
+        self.after(300, self._startup_check)
+
+    def _style(self):
+        s = ttk.Style(self)
+        try:
+            s.theme_use("clam")
+        except Exception:
+            pass
+        s.configure("Treeview", background=PANEL2, fieldbackground=PANEL2, foreground=TEXT,
+                    borderwidth=0, rowheight=30, font=("Segoe UI", 10))
+        s.configure("Treeview.Heading", background=PANEL, foreground=MUTED, relief="flat",
+                    font=("Segoe UI", 9, "bold"))
+        s.map("Treeview", background=[("selected", "#2c3740")], foreground=[("selected", TEXT)])
+        s.configure("TCombobox", fieldbackground=BTN, background=BTN, foreground=TEXT,
+                    arrowcolor=TEXT, bordercolor=BORDER)
+        s.configure("Horizontal.TProgressbar", troughcolor="#242730", background=ACCENT, bordercolor="#242730")
+        s.configure("TPanedwindow", background=BG)
+
+    def _button(self, parent, text, cmd=None, accent=False, width=None):
+        bg = ACCENT if accent else BTN
+        fg = "#07100f" if accent else TEXT
+        b = tk.Button(parent, text=text, command=cmd, bg=bg, fg=fg,
+                      activebackground=ACCENT_HOVER if accent else BTN_HOVER,
+                      activeforeground=fg, relief="flat", bd=0,
+                      font=("Segoe UI", 10, "bold" if accent else "normal"),
+                      padx=14, pady=8, cursor="hand2", width=width)
+        return b
+
+    def _label(self, parent, text="", **kw):
+        opts = dict(bg=PANEL, fg=TEXT, font=("Segoe UI", 10))
+        opts.update(kw)
+        return tk.Label(parent, text=text, **opts)
+
+    def _build_ui(self):
+        self._build_titlebar()
+        self._build_main()
+        self._build_statusbar()
+
+    def _build_titlebar(self):
+        bar = tk.Frame(self, bg="#111318", height=64, highlightthickness=1,
+                       highlightbackground="#282c35")
+        bar.pack(fill="x", side="top")
+        bar.pack_propagate(False)
+
+        left = tk.Frame(bar, bg="#111318")
+        left.pack(side="left", fill="y", padx=(14, 0))
+
+        logo_box = tk.Frame(left, bg=ACCENT, width=32, height=32)
+        logo_box.pack(side="left", pady=15)
+        logo_box.pack_propagate(False)
+        tk.Label(logo_box, text="S", bg=ACCENT, fg="#07100f",
+                 font=("Segoe UI", 14, "bold")).pack(expand=True)
+
+        brand = tk.Frame(left, bg="#111318")
+        brand.pack(side="left", padx=(9, 16), pady=10)
+        tk.Label(brand, text="SOLINAJ EDITOR", bg="#111318", fg=TEXT,
+                 font=("Segoe UI", 14, "bold")).pack(anchor="w")
+        tk.Label(brand, text=f"Video Studio  •  V{APP_VERSION}", bg="#111318",
+                 fg=MUTED, font=("Segoe UI", 8)).pack(anchor="w")
+
+        divider = tk.Frame(left, bg="#2b3039", width=1)
+        divider.pack(side="left", fill="y", pady=12, padx=(0, 14))
+
+        center = tk.Frame(bar, bg="#111318")
+        center.pack(side="left", fill="y")
+        title_actions = [
+            ("DOSYA", self.import_media),
+            ("DÜZENLE", self.split_clip),
+            ("GÖRÜNÜM", self._refresh_view),
+            ("YARDIM", self._show_help),
+        ]
+        for t, cmd in title_actions:
+            tk.Button(center, text=t, command=cmd, bg="#111318", fg="#9ea6b3",
+                      activebackground="#1c2027", activeforeground=TEXT,
+                      relief="flat", bd=0, font=("Segoe UI", 8, "bold"),
+                      padx=11, pady=21, cursor="hand2").pack(side="left")
+
+        right = tk.Frame(bar, bg="#111318")
+        right.pack(side="right", padx=14, fill="y")
+
+        self.update_button = self._button(right, "↻  Güncelle", self.check_update)
+        self.update_button.pack(side="left", padx=(0, 7), pady=13)
+
+        export_btn = self._button(right, "DIŞA AKTAR  →", self.start_export, accent=True)
+        export_btn.config(padx=18)
+        export_btn.pack(side="left", pady=13)
+
+    def _build_main(self):
+        outer = tk.PanedWindow(self, orient="vertical", bg=BORDER, sashwidth=5,
+                               bd=0, relief="flat", sashrelief="flat")
+        outer.pack(fill="both", expand=True)
+
+        work = tk.Frame(outer, bg=BG)
+        timeline = tk.Frame(outer, bg=TIMELINE_BG, height=300)
+        outer.add(work, stretch="always", minsize=420)
+        outer.add(timeline, stretch="never", minsize=245)
+
+        main = tk.PanedWindow(work, orient="horizontal", bg=BORDER, sashwidth=5, bd=0)
+        main.pack(fill="both", expand=True)
+
+        media = tk.Frame(main, bg=PANEL, width=295)
+        preview = tk.Frame(main, bg="#0b0c10", width=790)
+        inspector = tk.Frame(main, bg=PANEL, width=345)
+        main.add(media, minsize=245)
+        main.add(preview, minsize=560)
+        main.add(inspector, minsize=300)
+
+        self._build_media_panel(media)
+        self._build_preview(preview)
+        self._build_inspector(inspector)
+        self._build_timeline(timeline)
+
+    def _build_media_panel(self, parent):
+        hdr = tk.Frame(parent, bg=PANEL)
+        hdr.pack(fill="x", padx=12, pady=(12,8))
+        tk.Label(hdr, text="MEDYA", bg=PANEL, fg=TEXT, font=("Segoe UI", 11, "bold")).pack(side="left")
+        self._button(hdr, "+  İçe Aktar", self.import_media, accent=True).pack(side="right")
+
+        tabs = tk.Frame(parent, bg=PANEL)
+        tabs.pack(fill="x", padx=12)
+        tab_actions = [
+            ("Medya", lambda: self.status.set("Yerel medya")),
+            ("Ses", self.open_music_library),
+            ("Metin", self._focus_text_overlay),
+            ("Geçiş", lambda: self.status.set("Geçişler geliştirme aşamasında.")),
+            ("Efekt", lambda: self.status.set("Efektler geliştirme aşamasında.")),
+        ]
+        for i, (t, cmd) in enumerate(tab_actions):
+            fg = TEXT if i == 0 else MUTED
+            tk.Button(tabs, text=t, command=cmd, bg=PANEL, fg=fg, activebackground=BTN,
+                      activeforeground=TEXT, relief="flat", bd=0,
+                      font=("Segoe UI", 9, "bold" if i==0 else "normal"),
+                      padx=7, pady=7, cursor="hand2").pack(side="left")
+        tk.Frame(parent, bg=BORDER, height=1).pack(fill="x")
+
+        search = tk.Entry(parent, bg="#111319", fg=TEXT, insertbackground=TEXT, relief="flat",
+                          font=("Segoe UI", 10))
+        search.insert(0, "  🔎  Medyada ara...")
+        search.pack(fill="x", padx=12, pady=12, ipady=7)
+
+        self.media_tree = ttk.Treeview(parent, columns=("type","dur"), show="headings", selectmode="browse")
+        self.media_tree.heading("type", text="DOSYA")
+        self.media_tree.heading("dur", text="SÜRE")
+        self.media_tree.column("type", width=175, stretch=True)
+        self.media_tree.column("dur", width=60, anchor="e", stretch=False)
+        self.media_tree.pack(fill="both", expand=True, padx=12, pady=(0,12))
+        self.media_tree.bind("<<TreeviewSelect>>", self._media_selected)
+        self.media_tree.bind("<Double-1>", lambda e: self.add_selected_to_timeline())
+
+        foot = tk.Frame(parent, bg=PANEL)
+        foot.pack(fill="x", padx=12, pady=(0,12))
+        self._button(foot, "＋  Timeline'a Ekle", self.add_selected_to_timeline).pack(fill="x")
+
+    def _build_preview(self, parent):
+        top = tk.Frame(parent, bg="#0b0c10")
+        top.pack(fill="x", padx=12, pady=10)
+        tk.Label(top, text="ÖNİZLEME", bg="#0b0c10", fg="#aab2bf", font=("Segoe UI", 8, "bold")).pack(side="left")
+        self.preview_format = tk.Label(top, text="16:9", bg="#20242c", fg="#dfe4ec", font=("Segoe UI", 8, "bold"), padx=9, pady=4)
+        self.preview_format.pack(side="right")
+
+        stage_wrap = tk.Frame(parent, bg="#0b0c10")
+        stage_wrap.pack(fill="both", expand=True, padx=18, pady=(0,6))
+        self.stage = tk.Canvas(stage_wrap, bg="#050608", highlightthickness=1, highlightbackground="#2a2f39")
+        self.stage.pack(fill="both", expand=True)
+        self.stage.bind("<Configure>", self._draw_preview_placeholder)
+
+        controls = tk.Frame(parent, bg="#0b0c10")
+        controls.pack(fill="x", padx=18, pady=(0,10))
+        self.time_lbl = tk.Label(controls, text="00:00:00 / 00:00:00", bg="#0b0c10",
+                                 fg=MUTED, font=("Consolas", 9))
+        self.time_lbl.pack(side="left")
+        center = tk.Frame(controls, bg="#0b0c10")
+        center.place(relx=.5, rely=.5, anchor="center")
+        buttons = [
+            ("⏮", lambda: self._seek(0)),
+            ("◀ 5s", lambda: self._step(-5)),
+        ]
+        for bt, cmd in buttons:
+            tk.Button(center, text=bt, command=cmd, bg="#0b0c10", fg=TEXT,
+                      activebackground="#191b21", activeforeground=TEXT,
+                      relief="flat", bd=0, padx=7, pady=4, cursor="hand2").pack(side="left")
+        self.play_button = tk.Button(center, text="▶", command=self.toggle_preview, bg="#0b0c10", fg=TEXT,
+                                     activebackground="#191b21", activeforeground=TEXT,
+                                     relief="flat", bd=0, padx=10, pady=4, cursor="hand2")
+        self.play_button.pack(side="left")
+        tk.Button(center, text="⏹", command=self.stop_preview, bg="#0b0c10", fg=TEXT,
+                  activebackground="#191b21", activeforeground=TEXT,
