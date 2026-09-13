@@ -1,0 +1,239 @@
+.m4a",".aac",".ogg"}], key=lambda p:p.name.lower())
+        self.music_meta = {}
+        for mf in music.rglob("library.json"):
+            try:
+                data=json.loads(mf.read_text(encoding="utf-8-sig"))
+                for item in data.get("tracks",[]):
+                    self.music_meta[item.get("file","")] = item
+            except Exception:
+                pass
+        self.sticker_library = [p for p in stickers.rglob("*") if p.suffix.lower() in {".png",".webp",".jpg",".jpeg"}]
+
+    def open_music_library(self):
+        win = tk.Toplevel(self)
+        win.title("🎵 Solinaj Ses / Müzik")
+        win.geometry("900x610")
+        win.configure(bg="#15171b")
+        tk.Label(win,text="🎵 SOLINAJ MÜZİK KÜTÜPHANESİ",font=("Segoe UI",18,"bold"),fg="white",bg="#15171b").pack(pady=(18,4))
+        tk.Label(win,text="Uygulamayla gelen Solinaj Original parçaları + kendi eklediğin müzikler.",font=("Segoe UI",10),fg="#aeb4bf",bg="#15171b").pack()
+
+        top=tk.Frame(win,bg="#15171b"); top.pack(fill="x",padx=18,pady=14)
+        tk.Label(top,text="Kategori:",fg="white",bg="#15171b").pack(side="left")
+        cat=tk.StringVar(value="Tümü")
+        cats=["Tümü","Enerjik","Gerilim","Savaş","Komik","Chill","Sinematik","Oyun","Kullanıcı"]
+        cb=ttk.Combobox(top,textvariable=cat,values=cats,state="readonly",width=16)
+        cb.pack(side="left",padx=(8,14))
+        tk.Button(top,text="＋ Kendi Müziğini Ekle",command=lambda:self._add_music_files(lst,cat),padx=12,pady=7).pack(side="left",padx=4)
+        tk.Button(top,text="▶ Ön Dinle",command=lambda:self._preview_selected_music(lst),padx=12,pady=7).pack(side="left",padx=4)
+        tk.Button(top,text="■ Durdur",command=self._stop_music_preview,padx=12,pady=7).pack(side="left",padx=4)
+
+        list_frame=tk.Frame(win,bg="#15171b"); list_frame.pack(fill="both",expand=True,padx=18,pady=(0,8))
+        lst=tk.Listbox(list_frame,bg="#202329",fg="white",selectbackground="#3a404a",font=("Segoe UI",11),activestyle="none")
+        scr=ttk.Scrollbar(list_frame,orient="vertical",command=lst.yview); lst.configure(yscrollcommand=scr.set)
+        lst.pack(side="left",fill="both",expand=True); scr.pack(side="right",fill="y")
+
+        info=tk.StringVar(value="Bir parça seç. Dahili parçalar Solinaj için oluşturulmuş telifsiz örnek müziklerdir.")
+        tk.Label(win,textvariable=info,fg="#aeb4bf",bg="#15171b",anchor="w").pack(fill="x",padx=18,pady=(0,8))
+
+        foot=tk.Frame(win,bg="#15171b"); foot.pack(fill="x",padx=18,pady=(0,16))
+        tk.Button(foot,text="➕ Timeline A1'e Ekle",command=lambda:self._use_selected_music(lst),padx=14,pady=8).pack(side="left")
+        tk.Button(foot,text="🗑 Seçili Kullanıcı Müziğini Sil",command=lambda:self._delete_user_music(lst,cat),padx=12,pady=8).pack(side="left",padx=8)
+        tk.Label(foot,text="Dahili Solinaj parçaları silinmez.",fg="#f0c674",bg="#15171b").pack(side="right")
+
+        def refresh(*_):
+            self._refresh_music_list(lst,cat.get())
+        cb.bind("<<ComboboxSelected>>", refresh)
+        def selected(_=None):
+            sel=lst.curselection()
+            if not sel: return
+            p=getattr(lst,"_solinaj_paths",[])[sel[0]]
+            meta=self.music_meta.get(p.name,{})
+            info.set(f"{meta.get('title',p.stem)} • {meta.get('category','Kullanıcı')} • {meta.get('license','Kullanıcının eklediği dosya')}")
+        lst.bind("<<ListboxSelect>>", selected)
+        lst.bind("<Double-Button-1>", lambda e:self._preview_selected_music(lst))
+        refresh()
+        win.protocol("WM_DELETE_WINDOW", lambda:(self._stop_music_preview(),win.destroy()))
+
+    def _music_category(self,p):
+        meta=self.music_meta.get(p.name)
+        if meta: return meta.get("category","Solinaj")
+        if "Solinaj_Dahili" in p.parts: return "Solinaj"
+        return "Kullanıcı"
+
+    def _refresh_music_list(self, lst, category="Tümü"):
+        self._load_builtin_media_library()
+        lst.delete(0,"end")
+        paths=[]
+        for p in self.music_library:
+            cat=self._music_category(p)
+            if category != "Tümü" and cat != category:
+                continue
+            meta=self.music_meta.get(p.name,{})
+            title=meta.get("title",p.stem.replace("__"," - "))
+            lst.insert("end", f"{cat:10}  |  {title}")
+            paths.append(p)
+        lst._solinaj_paths=paths
+
+    def _add_music_files(self, lst, cat_var=None):
+        files=filedialog.askopenfilenames(title="Müzik seç",filetypes=[("Ses dosyaları","*.mp3 *.wav *.m4a *.aac *.ogg"),("Tüm dosyalar","*.*")])
+        if not files: return
+        dest=Path(__file__).resolve().parent/"media_library"/"music"/"Kullanici"
+        dest.mkdir(parents=True,exist_ok=True)
+        for f in files:
+            src=Path(f); target=dest/src.name
+            n=2
+            while target.exists():
+                target=dest/f"{src.stem}_{n}{src.suffix}"; n+=1
+            shutil.copy2(src,target)
+        if cat_var is not None: cat_var.set("Kullanıcı")
+        self._refresh_music_list(lst,"Kullanıcı")
+        self.status.set(f"{len(files)} müzik kütüphaneye eklendi.")
+
+    def _preview_selected_music(self,lst):
+        sel=lst.curselection()
+        if not sel:
+            messagebox.showwarning("Müzik","Önce bir müzik seç.")
+            return
+        paths=getattr(lst,"_solinaj_paths",[])
+        if sel[0] >= len(paths): return
+        p=paths[sel[0]]
+        ffplay=self._find_ffplay()
+        if not ffplay:
+            messagebox.showerror("Müzik Player","FFplay bulunamadı. V2.2.6 FFmpeg paketinin kurulu olması gerekiyor.")
+            return
+        self._stop_music_preview()
+        flags=getattr(subprocess,"CREATE_NO_WINDOW",0)
+        self.music_preview_proc=subprocess.Popen([ffplay,"-nodisp","-autoexit","-loglevel","quiet",str(p)],creationflags=flags)
+        self.status.set("Müzik önizleme: "+p.name)
+
+    def _stop_music_preview(self):
+        p=getattr(self,"music_preview_proc",None)
+        if p and p.poll() is None:
+            try: p.terminate()
+            except Exception: pass
+        self.music_preview_proc=None
+
+    def _use_selected_music(self, lst):
+        sel=lst.curselection()
+        if not sel:
+            messagebox.showwarning("Müzik","Önce bir müzik seç.")
+            return
+        paths=getattr(lst,"_solinaj_paths",[])
+        if sel[0] >= len(paths): return
+        p=paths[sel[0]]
+        self.selected_music_path=str(p)
+        self.status.set("A1 müzik seçildi: "+p.name)
+        self._draw_timeline()
+        messagebox.showinfo("Müzik",f"{p.name}\n\nA1 müzik katmanına eklendi. Dışa aktarırken videonun sesiyle karıştırılacak.")
+
+    def _delete_user_music(self,lst,cat_var):
+        sel=lst.curselection()
+        if not sel:
+            messagebox.showwarning("Müzik","Önce bir müzik seç.")
+            return
+        paths=getattr(lst,"_solinaj_paths",[])
+        p=paths[sel[0]]
+        if "Solinaj_Dahili" in p.parts:
+            messagebox.showinfo("Müzik","Dahili Solinaj parçaları korunur ve silinmez.")
+            return
+        if messagebox.askyesno("Müzik","Seçili müzik kütüphaneden silinsin mi?"):
+            try:
+                if self.selected_music_path == str(p): self.selected_music_path=""
+                p.unlink()
+                self._refresh_music_list(lst,cat_var.get())
+            except Exception as e:
+                messagebox.showerror("Müzik",str(e))
+
+    def open_sticker_library(self):
+        win=tk.Toplevel(self)
+        win.title("😀 Emoji & Sticker Kütüphanesi")
+        win.geometry("720x500")
+        win.configure(bg="#15171b")
+        tk.Label(win,text="😀 EMOJİ & STICKER",font=("Segoe UI",18,"bold"),fg="white",bg="#15171b").pack(pady=(18,4))
+        tk.Label(win,text="PNG / WEBP görsellerini ekle ve video overlay'i olarak kullan.",font=("Segoe UI",10),fg="#aeb4bf",bg="#15171b").pack()
+        bar=tk.Frame(win,bg="#15171b"); bar.pack(fill="x",padx=18,pady=14)
+        tk.Button(bar,text="＋ Sticker / Emoji Ekle",command=lambda:self._add_sticker_files(lst),padx=12,pady=7).pack(side="left")
+        lst=tk.Listbox(win,bg="#202329",fg="white",selectbackground="#3a404a",font=("Segoe UI",10))
+        lst.pack(fill="both",expand=True,padx=18,pady=(0,10))
+        self._refresh_sticker_list(lst)
+        tk.Button(win,text="Videoya Overlay Olarak Seç",command=lambda:self._use_selected_sticker(lst),padx=12,pady=7).pack(pady=(0,16))
+
+    def _refresh_sticker_list(self,lst):
+        self._load_builtin_media_library()
+        lst.delete(0,"end")
+        for p in self.sticker_library: lst.insert("end",p.name)
+
+    def _add_sticker_files(self,lst):
+        files=filedialog.askopenfilenames(title="Sticker/emoji seç",filetypes=[("Görseller","*.png *.webp *.jpg *.jpeg"),("Tüm dosyalar","*.*")])
+        if not files:return
+        dest=Path(__file__).resolve().parent/"media_library"/"stickers"
+        for f in files:
+            src=Path(f); target=dest/src.name
+            if target.exists(): target=dest/(src.stem+"_2"+src.suffix)
+            shutil.copy2(src,target)
+        self._refresh_sticker_list(lst)
+
+    def _use_selected_sticker(self,lst):
+        sel=lst.curselection()
+        if not sel:
+            messagebox.showwarning("Sticker","Önce bir sticker seç.")
+            return
+        p=self.sticker_library[sel[0]]
+        self.logo_path.set(str(p))
+        self.status.set("Sticker seçildi: "+p.name)
+        messagebox.showinfo("Sticker",f"{p.name}\n\nOverlay olarak seçildi. Sağ paneldeki logo/overlay ayarından kullanılabilir.")
+
+    def _open_update_window(self):
+        if getattr(self, "_update_win", None) and self._update_win.winfo_exists():
+            self._update_win.lift()
+            return
+
+        win = tk.Toplevel(self)
+        self._update_win = win
+        win.title("SOLINAJ EDITOR • Güncelleme Merkezi")
+        win.geometry("520x270")
+        win.resizable(False, False)
+        win.configure(bg="#111318")
+        win.transient(self)
+        try:
+            win.grab_set()
+        except Exception:
+            pass
+
+        shell = tk.Frame(win, bg="#111318", highlightthickness=1,
+                         highlightbackground="#2b3038")
+        shell.pack(fill="both", expand=True, padx=10, pady=10)
+
+        head = tk.Frame(shell, bg="#171a20")
+        head.pack(fill="x")
+        tk.Label(head, text="SOLINAJ EDITOR", bg="#171a20", fg="#f2f4f8",
+                 font=("Segoe UI", 13, "bold")).pack(side="left", padx=18, pady=14)
+        tk.Label(head, text=f"V{APP_VERSION}", bg="#171a20", fg="#9ba3af",
+                 font=("Segoe UI", 9, "bold")).pack(side="right", padx=18)
+
+        body = tk.Frame(shell, bg="#111318")
+        body.pack(fill="both", expand=True, padx=20, pady=18)
+
+        self.update_title_var = tk.StringVar(value="Güncelleme kontrol ediliyor")
+        tk.Label(body, textvariable=self.update_title_var, bg="#111318",
+                 fg="#f2f4f8", font=("Segoe UI", 15, "bold")).pack(anchor="w")
+
+        self.update_info_var = tk.StringVar(value="İnternetten yeni sürüm bilgisi alınıyor...")
+        tk.Label(body, textvariable=self.update_info_var, bg="#111318",
+                 fg="#aab2bf", font=("Segoe UI", 9), justify="left",
+                 wraplength=455).pack(anchor="w", pady=(7, 14))
+
+        # Canvas-based progress bar keeps the center fully dark on Windows.
+        self.update_bar_canvas = tk.Canvas(body, height=14, bg="#242933",
+                                           highlightthickness=0, bd=0)
+        self.update_bar_canvas.pack(fill="x")
+        self.update_bar_fill = self.update_bar_canvas.create_rectangle(
+            0, 0, 0, 14, fill="#2d8cff", outline="")
+
+        self.update_progress = tk.DoubleVar(value=0)
+        self.update_percent_var = tk.StringVar(value="Kontrol ediliyor...")
+        tk.Label(body, textvariable=self.update_percent_var, bg="#111318",
+                 fg="#d8dde6", font=("Segoe UI", 9, "bold")).pack(anchor="e", pady=(7, 0))
+
+        self.update_badge_var = tk.StringVar(value="")
+        self.update_badge = tk.Label(bod
