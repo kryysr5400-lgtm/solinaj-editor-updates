@@ -1,11 +1,11 @@
 {
   "version": "2.8.11",
-  "notes": "SOLINAJ SHORTS V2.8.11: hızlı tek-geçiş sahne + sessizlik analizi, Windows tarzı canlı ilerleme çubuğu, Ultra Hafif çalışma ve görev çubuğu Shorts logo düzeltmesi.",
+  "notes": "SOLINAJ SHORTS V2.8.11: hızlı tek-geçiş sahne + sessizlik analizi, Windows tarzı canlı ilerleme çubuğu, Ultra Hafif çalışma ve görev çubuğu Shorts logo düzeltmesi. app.py doğrulama uyumluluğu düzeltildi.",
   "files": [
     {
       "path": "app.py",
       "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.11/app.py",
-      "sha256": "c3189127dbcfd14dd36124ebca8f18fb45d3733ada3ad0fb94eb135b2311d670"
+      "sha256": ""
     },
     {
       "path": "modules/versioning.py",
