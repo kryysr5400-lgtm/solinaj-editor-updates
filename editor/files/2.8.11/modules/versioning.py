@@ -1,29 +1,20 @@
+from pathlib import Path
+import json
+
 APP_NAME = "Solinaj Shorts"
 APP_VERSION = "2.8.11"
 
+def _version_tuple(v):
+    parts=[]
+    for p in v.split("."):
+        try: parts.append(int(p))
+        except Exception: parts.append(0)
+    return tuple(parts)
 
-def version_tuple(value):
-    import re
-    nums = re.findall(r"\d+", str(value))
-    nums = (nums + ["0", "0", "0"])[:3]
-    return tuple(int(x) for x in nums)
-
-
-def is_newer(remote_version, current_version=APP_VERSION):
-    return version_tuple(remote_version) > version_tuple(current_version)
-
-
-def display_version():
-    return f"V{APP_VERSION}"
-
-
-def app_title():
-    return f"{APP_NAME} V{APP_VERSION}"
-
-
-def update_channel_name():
-    return "Solinaj Editor Internet Update Channel"
-
-
-def compatibility_note():
-    return "Mevcut SolinajEditorV2 klasoru, FFmpeg ve kullanici ayarlari korunur."
+def check_local_manifest():
+    manifest=Path(__file__).resolve().parent.parent/"update_manifest.json"
+    if not manifest.exists(): return {"status":"none"}
+    try:
+        data=json.loads(manifest.read_text(encoding="utf-8")); remote=str(data.get("version",APP_VERSION))
+        return {"status":"new","version":remote,"notes":data.get("notes","")} if _version_tuple(remote)>_version_tuple(APP_VERSION) else {"status":"current","version":APP_VERSION}
+    except Exception:return {"status":"none"}
