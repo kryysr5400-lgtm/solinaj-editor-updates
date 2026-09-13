@@ -47,6 +47,7 @@ def start_scan(self):
     if not hasattr(self, "pause_event"):
         self.pause_event=threading.Event()
 
+    # Calisan islem duraklatildiysa yeni tarama acma; ayni thread'i devam ettir.
     if self.running:
         if self.pause_event.is_set():
             self.pause_event.clear()
@@ -92,7 +93,13 @@ def _windows_bar_ensure(self):
         return
     try:
         parent=self.progress
-        self._windows_bar=tk.Canvas(parent,height=16,bg="#1f1f1f",highlightthickness=0,bd=0)
+        self._windows_bar=tk.Canvas(
+            parent,
+            height=16,
+            bg="#1f1f1f",
+            highlightthickness=0,
+            bd=0
+        )
         self._windows_bar.place(x=0, y=0, relwidth=1, relheight=1)
         self._windows_bar.lift()
     except Exception:
@@ -146,6 +153,7 @@ def _windows_bar_tick(self):
             self._windows_bar_phase=phase
             self._windows_bar_dir=direction
             self._windows_bar_draw()
+        # Duraklatmada faz degismez: isaret tam oldugu yerde donar.
         if getattr(self, "_windows_bar_running", False):
             self._windows_bar_schedule()
     except Exception:
@@ -177,10 +185,12 @@ def stop_scan(self):
     except Exception:
         self._pause_progress_text="Duraklatildi"
 
+    # Thread ve acik dosya tutulur; kopyalama konumu kaybolmaz.
     self.status.set("Duraklatildi - TARA ile devam et")
     self.progress_text.set("Duraklatildi")
     self._set_live(action="Duraklatildi", event="DURDUR - islem beklemede")
     self.add_log_ui("DURDUR: Islem duraklatildi. Dosya ve tarama konumu korunuyor.")
+    # Bar animasyon dongusu calismaya devam eder ama pause_event set iken faz degismez.
     try:
         self._windows_bar_draw()
     except Exception:
