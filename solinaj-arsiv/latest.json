@@ -1,6 +1,6 @@
 {
   "version": "16.2",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_2_windows_transfer_panel_patch.py",
-  "patch_sha256": "8e372ff0a90a14f9804bcc79d59f64e2728574de9d2c322111a0895573a9cce0",
-  "notes": "V16.2: Ana ekrandaki eski 'Arşivleme Devam Ediyor' alanı Windows 11 tarzı yerleşik işlem paneline dönüştürüldü. Panel program açılır açılmaz görünür; aktif dosya, kaynak, hedef, yüzde, hız, dosya sayısı ve tahmini kalan süreyi canlı gösterir. Tarama/kopyalama mantığı korunur, ayrı pencere açılmaz ve panel işlem bitince ekranda kalır."
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_2_hashfix_wrapper.py",
+  "patch_sha256": "aab56f4e78a9dbc76a086ce2aeb9eb98da5e971b6b30b19d6e59edea63fdc56c",
+  "notes": "V16.2: Ana ekrandaki eski 'Arşivleme Devam Ediyor' alanı Windows 11 tarzı yerleşik işlem paneline dönüştürüldü. Panel program açılır açılmaz görünür; aktif dosya, kaynak, hedef, yüzde, hız, dosya sayısı ve tahmini kalan süreyi canlı gösterir. Tarama/kopyalama mantığı korunur, ayrı pencere açılmaz ve panel işlem bitince ekranda kalır. SHA-256 doğrulaması düzeltildi."
 }
