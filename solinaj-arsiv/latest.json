@@ -1,6 +1,6 @@
 {
-  "version": "16.9.1",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v16_9_1_update_notice_restore_patch.py",
-  "patch_sha256": "9cb8fe0b3a270860af5a6b1d57ff073b6267bbb36d3272885387f13ce0650faf",
-  "notes": "V16.9.1: V16.9'daki çalışan güncelleme bağlantısı korunurken, güncelleme sonucu için önceki görünür uyarı penceresi geri getirildi. Program güncelse yerel ve sunucu sürümünü gösteren bilgi penceresi yeniden açılır."
+  "version": "17.0.1",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v17_0_1_official_heartbeat_patch.py",
+  "patch_sha256": "42e030785333c260b11b8b7c62df3a05288b83be79a49505c7432a4e70c8aacb",
+  "notes": "V17.0.1: Sol menüye canlı Sistem Durumu heartbeat grafiği eklendi. Beklemede yeşil düz çizgi, tarama/kopyalama/arşivleme sırasında kırmızı EKG görünür; işlem tamamlandığında veya DUR komutu verildiğinde yeşile döner. Eski büyük Canlı İşlem Merkezi gizlenir, üst arşivleme/ilerleme alanı korunur. DUR işlevi gerçek tarama akışında test edilmiştir."
 }
