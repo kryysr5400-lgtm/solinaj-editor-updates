@@ -1,6 +1,6 @@
 {
-  "version": "15.3",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_3_patch.py",
-  "patch_sha256": "4147bc428839a7c8f7a453e348274765397f94875b89a1a759518645380000bc",
-  "notes": "Ana ekrandaki tekrar eden GÜNCELLE düğmesi kaldırıldı. Güncelleme artık yalnızca sol taraftaki Güncelleme menüsünden yapılır."
+  "version": "15.4",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_4_patch.py",
+  "patch_sha256": "0f28fc2970955d2e0175df51ba435aa70e7596bc47d0b360dab6665662b3b297",
+  "notes": "Dosya türü sınırlaması kaldırıldı. Eski oyun videosu, Shorts, oyun resmi ve aile resmi sistemi korunur; diğer dosyalar da otomatik tanınarak Belgeler, Sesler, Arsivler, Programlar, Projeler, Veriler, Tasarim, Fontlar ve Diger Dosyalar klasörlerine ayrılır. Aynı dosyalar yeniden kopyalanmaz."
 }
