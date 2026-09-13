@@ -1,6 +1,6 @@
 {
-  "version": "15.6",
-  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_6_compat_patch2.py",
-  "patch_sha256": "b04748a818f3e9eaaaab1b2e3269875c0c67da2608d3e3a38e38cfda8421cd28",
-  "notes": "V15.6 uyumluluk düzeltmesi: Gerçek V15.5 kurulumuna göre TARAMAYI BAŞLAT yeniden bağlandı; tarama çubuğu Windows tarzı hareketli çalışır, dosya kopyalamada gerçek ilerleme gösterir ve DURDUR aktif işlemi güvenli biçimde keser. Yeni dosya adıyla önbellek sorunu da giderildi."
+  "version": "15.7",
+  "patch_url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/solinaj-arsiv/v15_7_patch.py",
+  "patch_sha256": "1b1a35729ed795b1600a37400ceff55bf1d9bd504f4585e3487ec6d50133bcce",
+  "notes": "V15.7: TARAMAYI BAŞLAT gerçek taramayı başlatır; DURDUR aktif tarama ve kopyalamayı keser ve yarım dosyayı temizler. Ana ilerleme çubuğu tarama sırasında Windows tarzı hareket eder, kopyalamada gerçek ilerlemeyi gösterir. Güncelleme sayfasına da hareketli ilerleme çubuğu eklendi. Video, Shorts, oyun/aile resimleri sistemi korunur; diğer dosya türleri Belgeler, Sesler, Arsivler, Programlar, Projeler, Veriler, Tasarim, Fontlar ve Diger Dosyalar klasörlerine ayrılır. Aynı dosya yeniden kopyalanmaz."
 }
