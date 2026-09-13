@@ -1,16 +1,26 @@
 {
-  "version": "2.8.11",
-  "notes": "SOLINAJ SHORTS V2.8.11: hızlı tek-geçiş sahne + sessizlik analizi, Windows tarzı canlı ilerleme çubuğu, Ultra Hafif çalışma ve görev çubuğu Shorts logo düzeltmesi. app.py doğrulama uyumluluğu düzeltildi.",
+  "version": "2.8.12",
+  "notes": "SOLINAJ SHORTS V2.8.12: güncelleme sonrası uygulamanın otomatik yeniden açılmaması düzeltildi. Shorts launcher ve güncelleme yeniden başlatma akışı güçlendirildi.",
   "files": [
     {
-      "path": "app.py",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.11/app.py",
-      "sha256": ""
+      "path": "modules/versioning.py",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/modules/versioning.py",
+      "sha256": "073126c8ace1f97b2fd4c27b9a7946f0fe6807c5188473254e9e49b8e9bdc3df"
     },
     {
-      "path": "modules/versioning.py",
-      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.11/modules/versioning.py",
-      "sha256": "0281415aeb0cefb9f9f95f6b5bb2206d86d093744c3d06574bf66b69304234df"
+      "path": "SolinajShorts_Launcher.vbs",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/SolinajShorts_Launcher.vbs",
+      "sha256": "236321f48a0849356d7a6d363a6bb37f58a8f108c1fcc1be421877df17036a4c"
+    },
+    {
+      "path": "SolinajEditor_Launcher.vbs",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/SolinajEditor_Launcher.vbs",
+      "sha256": "236321f48a0849356d7a6d363a6bb37f58a8f108c1fcc1be421877df17036a4c"
+    },
+    {
+      "path": "AUTO_UPDATE_FILES_APPLY.ps1",
+      "url": "https://raw.githubusercontent.com/kryysr5400-lgtm/solinaj-editor-updates/main/editor/files/2.8.12/AUTO_UPDATE_FILES_APPLY.ps1",
+      "sha256": "329c0fedea21f7dfc45ef78ffb69bd0e79b01aa308b2292fee4886afbf8ee656"
     }
   ]
 }
